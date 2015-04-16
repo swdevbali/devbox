@@ -19,6 +19,7 @@
    osx-clipboard
    expand-region
    ace-jump-mode
+   emmet-mode
    scala-mode2
    full-ack
    navigate
@@ -64,6 +65,7 @@
 (require 'web-mode)
 (require 'magit)
 (require 'markdown-mode)
+(require 'emmet-mode)
 
 ;;=====================================
 ;;general configuration
@@ -71,6 +73,16 @@
 (menu-bar-mode -1) ;;remove menu bar
 (define-key global-map (kbd "RET") 'newline-and-indent) ;;auto indent on new line
 (setq-default truncate-lines t)
+
+;;=====================================
+;; backups
+;;=====================================
+(setq backup-directory-alist `(("." . "~/.saves")))
+(setq backup-by-copying t)
+(setq delete-old-versions t
+  kept-new-versions 6
+  kept-old-versions 2
+  version-control t)
 
 ;;=====================================
 ;;evil leader
@@ -223,6 +235,7 @@
  '(diff-removed ((t (:inherit diff-changed :background "#ffdddd" :foreground "black"))))
  '(hl-line ((t (:background "color-233"))))
  '(lazy-highlight ((t (:background "black" :foreground "white" :underline t))))
+ '(mode-line ((t (:background "color-234" :foreground "brightmagenta" :box nil))))
  '(neo-dir-link-face ((t (:foreground "cyan"))))
  '(neo-file-link-face ((t (:foreground "white"))))
  '(secondary-selection ((t (:background "color-236"))))
