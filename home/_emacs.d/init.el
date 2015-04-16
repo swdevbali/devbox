@@ -126,6 +126,7 @@
 
 (evil-leader/set-key
   "e" 'cider-eval-defun-at-point
+  "c" 'comment-dwim
   "E" 'eval-last-sexp
   "w" 'web-mode
   "j" 'ace-jump-char-mode
