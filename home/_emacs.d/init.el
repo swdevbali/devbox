@@ -20,8 +20,8 @@
    expand-region
    ace-jump-mode
    emmet-mode
-   scala-mode2
    full-ack
+   web-mode
    navigate
    helm
    go-mode
@@ -43,9 +43,13 @@
   (unless (package-installed-p package)
     (package-install package)))
 
+(load "~/.emacs.d/evil-tmux-navigator/navigate.el")
+(load "~/.emacs.d/railscasts-theme/railscasts-theme.el")
+
 (require 'exec-path-from-shell)
 (require 'evil)
 (require 'evil-leader)
+(require 'navigate)
 (require 'color-theme)
 (require 'key-chord)
 (require 'ido)
@@ -55,8 +59,6 @@
 (require 'osx-clipboard)
 (require 'expand-region)
 (require 'ace-jump-mode)
-(require 'scala-mode2)
-(require 'navigate)
 (require 'helm)
 (require 'go-mode)
 (require 'auto-complete)
@@ -125,9 +127,8 @@
 (evil-leader/set-leader ",")
 
 (evil-leader/set-key
-  "e" 'cider-eval-defun-at-point
   "c" 'comment-dwim
-  "E" 'eval-last-sexp
+  "e" 'amir/eval-sexp-dwim
   "w" 'web-mode
   "j" 'ace-jump-char-mode
   "m" 'evil-window-vnew
@@ -143,8 +144,16 @@
   "4" 'amir/tab-space-four
   "2" 'amir/tab-space-two
   "n" 'amir/next-search-to-top
+  ")" 'next-buffer
+  "(" 'previous-buffer
   "p" 'amir/previous-search-to-top
   "i" 'install-packages)
+
+(defun amir/eval-sexp-dwim ()
+  (interactive)
+  (pcase major-mode
+    (`clojure-mode (cider-eval-defun-at-point))
+    (_ (eval-last-sexp nil))))
 
 ;;=====================================
 ;; evil configuration
@@ -196,7 +205,6 @@
 ;;color theme configuration
 ;;=====================================
 (color-theme-initialize)
-(load "~/.emacs.d/railscasts-theme/railscasts-theme.el")
 
 ;;=====================================
 ;;projectile mode
@@ -239,6 +247,7 @@
  '(mode-line ((t (:background "color-234" :foreground "brightmagenta" :box nil))))
  '(neo-dir-link-face ((t (:foreground "cyan"))))
  '(neo-file-link-face ((t (:foreground "white"))))
+ '(neo-header-face ((t (:foreground "color-33"))))
  '(secondary-selection ((t (:background "color-236"))))
  '(shadow ((t (:foreground "cyan"))))
  '(web-mode-html-tag-bracket-face ((t (:foreground "color-250"))))
@@ -359,3 +368,13 @@
      (with-current-buffer buffer
        (buffer-string))))
   (message "Output copied to kill ring"))
+
+;;=====================================
+;;change auto save directory
+;;=====================================
+(setq backup-directory-alist
+  `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+  `((".*" ,temporary-file-directory t)))
+
+(setq magit-last-seen-setup-instructions "1.4.0")
