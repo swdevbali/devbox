@@ -30,7 +30,10 @@
    clojure-mode
    cider
    magit
+   fsharp-mode
    2048-game
+   js2-mode
+   avy
    markdown-mode
    projectile))
 
@@ -68,6 +71,9 @@
 (require 'magit)
 (require 'markdown-mode)
 (require 'emmet-mode)
+(require 'fsharp-mode)
+(require 'js2-mode)
+(require 'avy)
 
 ;;=====================================
 ;;general configuration
@@ -130,7 +136,11 @@
   "c" 'comment-dwim
   "e" 'amir/eval-sexp-dwim
   "w" 'web-mode
-  "j" 'ace-jump-char-mode
+  "W" 'js2-mode
+  "K" 'amir/edit-init-el
+  "k" 'amir/reload-init-el
+  "j" 'avy-goto-line
+  "v" 'avy-goto-word-0
   "m" 'evil-window-vnew
   "g" 'projectile-find-file
   "t" 'amir/touch
@@ -149,11 +159,24 @@
   "p" 'amir/previous-search-to-top
   "i" 'install-packages)
 
+(defun amir/edit-init-el ()
+  (interactive)
+  (evil-window-vnew nil "~/.emacs.d/init.el"))
+
+(defun amir/reload-init-el ()
+  (interactive)
+  (load "~/.emacs.d/init.el"))
+
 (defun amir/eval-sexp-dwim ()
   (interactive)
   (pcase major-mode
     (`clojure-mode (cider-eval-defun-at-point))
     (_ (eval-last-sexp nil))))
+
+;;=====================================
+;; avy
+;;=====================================
+(setq avy-styles-alist '((avy-goto-word-0 . at-full) (avy-goto-line . at-full)))
 
 ;;=====================================
 ;; evil configuration
@@ -238,11 +261,16 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(avy-lead-face ((t (:background "cyan" :foreground "black"))))
+ '(avy-lead-face-0 ((t (:background "cyan" :foreground "black"))))
+ '(avy-lead-face-1 ((t (:background "cyan" :foreground "black"))))
  '(col-highlight ((t (:background "color-233"))))
  '(diff-added ((t (:inherit diff-changed :background "#ddffdd" :foreground "black"))))
  '(diff-header ((t (:background "grey80" :foreground "black"))))
  '(diff-removed ((t (:inherit diff-changed :background "#ffdddd" :foreground "black"))))
  '(hl-line ((t (:background "color-233"))))
+ '(js2-external-variable ((t (:foreground "color-136"))))
+ '(js2-function-param ((t (:foreground "color-81"))))
  '(lazy-highlight ((t (:background "black" :foreground "white" :underline t))))
  '(mode-line ((t (:background "color-234" :foreground "brightmagenta" :box nil))))
  '(neo-dir-link-face ((t (:foreground "cyan"))))
@@ -327,6 +355,10 @@
 (global-set-key (kbd "C-h")
   '(lambda () (interactive) (amir/emacs-or-tmux "left"  "tmux previous-window")))
 
+;;=====================================
+;;javascript editing
+;;=====================================
+(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
 ;;=====================================
 ;; tab width 2
