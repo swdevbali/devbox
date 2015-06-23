@@ -22,7 +22,6 @@
    emmet-mode
    full-ack
    web-mode
-   navigate
    helm
    go-mode
    auto-complete
@@ -35,6 +34,9 @@
    js2-mode
    avy
    markdown-mode
+   flycheck
+   json-mode
+   persistent-scratch
    projectile))
 
 (package-initialize)
@@ -74,6 +76,9 @@
 (require 'fsharp-mode)
 (require 'js2-mode)
 (require 'avy)
+(require 'flycheck)
+(require 'json-mode)
+(require 'persistent-scratch)
 
 ;;=====================================
 ;;general configuration
@@ -83,7 +88,7 @@
 (setq-default truncate-lines t)
 
 ;;=====================================
-;; backups
+;; backups and scratch buffer
 ;;=====================================
 (setq backup-directory-alist `(("." . "~/.saves")))
 (setq backup-by-copying t)
@@ -91,6 +96,8 @@
   kept-new-versions 6
   kept-old-versions 2
   version-control t)
+
+(persistent-scratch-setup-default)
 
 ;;=====================================
 ;;evil leader
@@ -106,7 +113,7 @@
   "Sets javascript and default tab space to four spaces."
   (interactive)
   (setq js-indent-level 4)
-  (setq default-tab-width 4))
+  (setq tab-width 4))
 
 (defun amir/next-search-to-top ()
   "Primarily for presentations, finds next occurence of string and scrolls it to the top"
@@ -126,7 +133,7 @@
   "Sets javascript and default tab space to two spaces."
   (interactive)
   (setq js-indent-level 2)
-  (setq default-tab-width 2))
+  (setq tab-width 2))
 
 (global-evil-leader-mode)
 
@@ -135,12 +142,12 @@
 (evil-leader/set-key
   "c" 'comment-dwim
   "e" 'amir/eval-sexp-dwim
-  "w" 'web-mode
-  "W" 'js2-mode
+  "v" 'web-mode
+  "V" 'js2-mode
   "K" 'amir/edit-init-el
   "k" 'amir/reload-init-el
   "j" 'avy-goto-line
-  "v" 'avy-goto-word-0
+  "w" 'avy-goto-word-0
   "m" 'evil-window-vnew
   "g" 'projectile-find-file
   "t" 'amir/touch
@@ -157,6 +164,7 @@
   ")" 'next-buffer
   "(" 'previous-buffer
   "p" 'amir/previous-search-to-top
+  "o" 'flycheck-list-errors
   "i" 'install-packages)
 
 (defun amir/edit-init-el ()
@@ -355,10 +363,30 @@
 (global-set-key (kbd "C-h")
   '(lambda () (interactive) (amir/emacs-or-tmux "left"  "tmux previous-window")))
 
-;;=====================================
-;;javascript editing
-;;=====================================
+;;========================================
+;;auto mode list for different file types
+;;========================================
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+
+
+;;=========================================
+;;jsx linter
+;;========================================
+(add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
+
+;; disable jshint since we prefer eslint checking
+(setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers
+    '(javascript-jshint)))
+
+;; use eslint with web-mode for jsx files
+(flycheck-add-mode 'javascript-eslint 'web-mode)
+
+;; disable json-jsonlist checking for json files
+(setq-default flycheck-disabled-checkers
+  (append flycheck-disabled-checkers
+    '(json-jsonlist)))
+
 
 ;;=====================================
 ;; tab width 2
