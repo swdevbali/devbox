@@ -36,6 +36,10 @@
    markdown-mode
    flycheck
    json-mode
+   jabber
+   diminish
+   hl-line
+   hl-line+
    persistent-scratch
    projectile))
 
@@ -50,6 +54,7 @@
 
 (load "~/.emacs.d/evil-tmux-navigator/navigate.el")
 (load "~/.emacs.d/railscasts-theme/railscasts-theme.el")
+(load "~/.emacs.d/secret-functions.el")
 
 (require 'exec-path-from-shell)
 (require 'evil)
@@ -79,6 +84,39 @@
 (require 'flycheck)
 (require 'json-mode)
 (require 'persistent-scratch)
+(require 'jabber)
+(require 'diminish)
+(require 'hl-line)
+(require 'hl-line+)
+
+
+;;=====================================
+;;highlight buffer when idle
+;;=====================================
+(hl-line-flash)
+(toggle-hl-line-when-idle)
+
+;;=====================================
+;;load jabber stuff
+;;=====================================
+(setq jabber-account-list `((,(amir/gmail)
+                              (:password . ,(amir/gmail-password))
+                              (:network-server . "talk.google.com")
+                              (:connection-type . ssl))))
+
+(define-jabber-alert echo "Show a message in the echo area"
+  (lambda (msg)
+    (unless (minibuffer-prompt)
+      (message "%s" msg))))
+
+;;=====================================
+;;mode line changes to hide minor modes I don't care about
+;;=====================================
+(diminish 'projectile-mode "")
+(diminish 'osx-clipboard-mode "")
+(diminish 'undo-tree-mode "")
+(diminish 'magit-auto-revert-mode "")
+(diminish 'auto-complete-mode "")
 
 ;;=====================================
 ;;general configuration
@@ -141,7 +179,7 @@
 
 (evil-leader/set-key
   "c" 'comment-dwim
-  "e" 'amir/eval-sexp-dwim
+  "e" 'amir/eval-dwim
   "v" 'web-mode
   "V" 'js2-mode
   "K" 'amir/edit-init-el
@@ -175,10 +213,11 @@
   (interactive)
   (load "~/.emacs.d/init.el"))
 
-(defun amir/eval-sexp-dwim ()
+(defun amir/eval-dwim ()
   (interactive)
   (pcase major-mode
     (`clojure-mode (cider-eval-defun-at-point))
+    (`fsharp-mode (fsharp-eval-region (point) (mark)))
     (_ (eval-last-sexp nil))))
 
 ;;=====================================
@@ -276,7 +315,8 @@
  '(diff-added ((t (:inherit diff-changed :background "#ddffdd" :foreground "black"))))
  '(diff-header ((t (:background "grey80" :foreground "black"))))
  '(diff-removed ((t (:inherit diff-changed :background "#ffdddd" :foreground "black"))))
- '(hl-line ((t (:background "color-233"))))
+ '(hl-line ((t (:background "brightblack"))))
+ '(jabber-activity-personal-face ((t (:foreground "red" :weight bold))))
  '(js2-external-variable ((t (:foreground "color-136"))))
  '(js2-function-param ((t (:foreground "color-81"))))
  '(lazy-highlight ((t (:background "black" :foreground "white" :underline t))))
@@ -438,3 +478,9 @@
   `((".*" ,temporary-file-directory t)))
 
 (setq magit-last-seen-setup-instructions "1.4.0")
+
+;;=====================================
+;;tail log files
+;;=====================================
+
+(add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
