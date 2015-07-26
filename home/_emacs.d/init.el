@@ -23,6 +23,7 @@
    full-ack
    web-mode
    helm
+   helm-projectile
    go-mode
    auto-complete
    zencoding-mode
@@ -70,6 +71,7 @@
 (require 'expand-region)
 (require 'ace-jump-mode)
 (require 'helm)
+(require 'helm-config)
 (require 'go-mode)
 (require 'auto-complete)
 (require 'full-ack)
@@ -89,12 +91,13 @@
 (require 'hl-line)
 (require 'hl-line+)
 
+(setq magit-last-seen-setup-instructions "1.4.0")
 
 ;;=====================================
 ;;highlight buffer when idle
 ;;=====================================
-(hl-line-flash)
 (toggle-hl-line-when-idle)
+;;(hl-line-idle-interval 5)
 
 ;;=====================================
 ;;load jabber stuff
@@ -186,7 +189,7 @@
   "k" 'amir/reload-init-el
   "j" 'avy-goto-line
   "w" 'avy-goto-word-0
-  "m" 'evil-window-vnew
+  "m" 'evil-window-vsplit
   "g" 'projectile-find-file
   "t" 'amir/touch
   "a" 'amir/foo-inline
@@ -203,6 +206,9 @@
   "(" 'previous-buffer
   "p" 'amir/previous-search-to-top
   "o" 'flycheck-list-errors
+  "`" 'amir/resize-window-dwim
+  "TAB" 'balance-windows
+  "q" 'amir/insert-file-name
   "i" 'install-packages)
 
 (defun amir/edit-init-el ()
@@ -224,6 +230,7 @@
 ;; avy
 ;;=====================================
 (setq avy-styles-alist '((avy-goto-word-0 . at-full) (avy-goto-line . at-full)))
+(setq avy-all-windows nil)
 
 ;;=====================================
 ;; evil configuration
@@ -408,7 +415,6 @@
 ;;========================================
 (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
 
-
 ;;=========================================
 ;;jsx linter
 ;;========================================
@@ -477,10 +483,43 @@
 (setq auto-save-file-name-transforms
   `((".*" ,temporary-file-directory t)))
 
-(setq magit-last-seen-setup-instructions "1.4.0")
 
 ;;=====================================
 ;;tail log files
 ;;=====================================
 
 (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
+
+;;====================================
+;; window sizing
+;;====================================
+(defun amir/resize-window-dwim ()
+  (interactive)
+  (let ((maximize (< (window-width) (/ (frame-width) 2))))
+    (cond ((< (window-width) 80) (evil-window-set-width 80))
+          (maximize
+           (progn
+             (evil-window-set-width (frame-width))
+             (evil-window-set-height (frame-height))
+             (redraw-display)))
+          ((not maximize) (evil-window-set-width 80)))))
+
+;;=======================================
+;; good for inserting require statements
+;; function will add the relative path to
+;; selected file
+;;=======================================
+(defun amir/insert-file-name (filename &optional args)
+  (interactive `(,(ido-read-file-name "File Name: ")
+                 ,current-prefix-arg))
+  (cond ((eq '- args)
+         (insert (expand-file-name filename)))
+        ((not (null args))
+         (insert filename))
+        (t
+         (insert (file-relative-name filename)))))
+
+;;=======================================
+;; save on lose focus,
+;;=======================================
+(add-hook 'focus-out-hook 'save-buffer)
