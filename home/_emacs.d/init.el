@@ -37,7 +37,6 @@
    markdown-mode
    flycheck
    json-mode
-   jabber
    diminish
    hl-line
    hl-line+
@@ -86,31 +85,17 @@
 (require 'flycheck)
 (require 'json-mode)
 (require 'persistent-scratch)
-(require 'jabber)
 (require 'diminish)
 (require 'hl-line)
 (require 'hl-line+)
 
-(setq magit-last-seen-setup-instructions "1.4.0")
+
 
 ;;=====================================
 ;;highlight buffer when idle
 ;;=====================================
 (toggle-hl-line-when-idle)
-;;(hl-line-idle-interval 5)
-
-;;=====================================
-;;load jabber stuff
-;;=====================================
-(setq jabber-account-list `((,(amir/gmail)
-                              (:password . ,(amir/gmail-password))
-                              (:network-server . "talk.google.com")
-                              (:connection-type . ssl))))
-
-(define-jabber-alert echo "Show a message in the echo area"
-  (lambda (msg)
-    (unless (minibuffer-prompt)
-      (message "%s" msg))))
+(hl-line-when-idle-interval 5)
 
 ;;=====================================
 ;;mode line changes to hide minor modes I don't care about
@@ -131,14 +116,20 @@
 ;;=====================================
 ;; backups and scratch buffer
 ;;=====================================
-(setq backup-directory-alist `(("." . "~/.saves")))
-(setq backup-by-copying t)
-(setq delete-old-versions t
-  kept-new-versions 6
-  kept-old-versions 2
-  version-control t)
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
 
-(persistent-scratch-setup-default)
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
+
+
+;;=====================================
+;;evil
+;;=====================================
+
+;;vim's 'word' includes _ and -
+(modify-syntax-entry ?- "w")
+(modify-syntax-entry ?_ "w")
 
 ;;=====================================
 ;;evil leader
@@ -189,7 +180,7 @@
   "k" 'amir/reload-init-el
   "j" 'avy-goto-line
   "w" 'avy-goto-word-0
-  "m" 'evil-window-vsplit
+  "m" 'amir/split-and-find
   "g" 'projectile-find-file
   "t" 'amir/touch
   "a" 'amir/foo-inline
@@ -207,7 +198,7 @@
   "p" 'amir/previous-search-to-top
   "o" 'flycheck-list-errors
   "`" 'amir/resize-window-dwim
-  "TAB" 'balance-windows
+  "TAB" 'amir/resize-equal
   "q" 'amir/insert-file-name
   "i" 'install-packages)
 
@@ -218,6 +209,11 @@
 (defun amir/reload-init-el ()
   (interactive)
   (load "~/.emacs.d/init.el"))
+
+(defun amir/split-and-find ()
+  (interactive)
+  (evil-window-vsplit)
+  (projectile-find-file))
 
 (defun amir/eval-dwim ()
   (interactive)
@@ -327,7 +323,8 @@
  '(js2-external-variable ((t (:foreground "color-136"))))
  '(js2-function-param ((t (:foreground "color-81"))))
  '(lazy-highlight ((t (:background "black" :foreground "white" :underline t))))
- '(mode-line ((t (:background "color-234" :foreground "brightmagenta" :box nil))))
+ '(mode-line ((t (:background "color-130" :foreground "white" :box nil))))
+ '(mode-line-buffer-id ((t (:background "brightred" :foreground "white"))))
  '(neo-dir-link-face ((t (:foreground "cyan"))))
  '(neo-file-link-face ((t (:foreground "white"))))
  '(neo-header-face ((t (:foreground "color-33"))))
@@ -372,24 +369,8 @@
 (setq-default indent-tabs-mode nil
               tab-width 2)
 
-
 (setq css-indent-offset 2)
 
-;;=====================================
-;;ensime for scala development
-;;=====================================
-;(add-hook 'scala-mode-hook 'ensime-scala-mode-hook)
-;(setenv "PATH" (concat "/usr/local/bin/sbt:" (getenv "PATH")))
-;(setenv "PATH" (concat "/usr/local/bin/scala:" (getenv "PATH")))
-;
-;(when (memq window-system '(mac ns))
-;  (exec-path-from-shell-initialize))
-
-(defun amir/ruby-words ()
-  (interactive)
-  (modify-syntax-entry ?_ "w"))
-
-(add-hook 'ruby-mode-hook 'amir/ruby-words)
 
 
 ;;=====================================
@@ -480,19 +461,26 @@
 ;;=====================================
 (setq backup-directory-alist
   `((".*" . ,temporary-file-directory)))
+
 (setq auto-save-file-name-transforms
   `((".*" ,temporary-file-directory t)))
+
+(setq delete-old-versions t)
 
 
 ;;=====================================
 ;;tail log files
 ;;=====================================
-
 (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
 
 ;;====================================
 ;; window sizing
 ;;====================================
+(defun amir/resize-equal ()
+  (interactive)
+  (balance-windows)
+  (redraw-display))
+
 (defun amir/resize-window-dwim ()
   (interactive)
   (let ((maximize (< (window-width) (/ (frame-width) 2))))
@@ -510,16 +498,12 @@
 ;; selected file
 ;;=======================================
 (defun amir/insert-file-name (filename &optional args)
-  (interactive `(,(ido-read-file-name "File Name: ")
-                 ,current-prefix-arg))
-  (cond ((eq '- args)
-         (insert (expand-file-name filename)))
-        ((not (null args))
-         (insert filename))
-        (t
-         (insert (file-relative-name filename)))))
+  (interactive `(,(ido-read-file-name "File Name: ") ,current-prefix-arg))
+  (cond ((eq '- args) (insert (expand-file-name filename)))
+        ((not (null args)) (insert filename))
+        (t (insert (file-relative-name filename)))))
 
-;;=======================================
-;; save on lose focus,
-;;=======================================
-(add-hook 'focus-out-hook 'save-buffer)
+;;=========================================
+;; magit stuff
+;;=========================================
+(setq magit-last-seen-setup-instructions "1.4.0")
