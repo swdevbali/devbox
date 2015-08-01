@@ -40,7 +40,6 @@
    diminish
    hl-line
    hl-line+
-   persistent-scratch
    projectile))
 
 (package-initialize)
@@ -84,7 +83,6 @@
 (require 'avy)
 (require 'flycheck)
 (require 'json-mode)
-(require 'persistent-scratch)
 (require 'diminish)
 (require 'hl-line)
 (require 'hl-line+)
@@ -190,8 +188,6 @@
   "." 'ido-dired
   "s" 'magit-status
   "h" 'vc-print-log
-  "4" 'amir/tab-space-four
-  "2" 'amir/tab-space-two
   "n" 'amir/next-search-to-top
   ")" 'next-buffer
   "(" 'previous-buffer
@@ -200,6 +196,10 @@
   "`" 'amir/resize-window-dwim
   "TAB" 'amir/resize-equal
   "q" 'amir/insert-file-name
+  "2" 'amir/resize-window-vertical+
+  "3" 'amir/resize-window-vertical-
+  "1" 'amir/resize-window-horizontal-
+  "4" 'amir/resize-window-horizontal+
   "i" 'install-packages)
 
 (defun amir/edit-init-el ()
@@ -491,6 +491,22 @@
              (evil-window-set-height (frame-height))
              (redraw-display)))
           ((not maximize) (evil-window-set-width 80)))))
+
+(defun amir/resize-window-vertical+ ()
+  (interactive)
+  (evil-window-set-height (+ (window-height) 10)))
+
+(defun amir/resize-window-vertical- ()
+  (interactive)
+  (evil-window-set-height (- (window-height) 10)))
+
+(defun amir/resize-window-horizontal+ ()
+  (interactive)
+  (evil-window-set-width (+ (window-width) 10)))
+
+(defun amir/resize-window-horizontal- ()
+  (interactive)
+  (evil-window-set-width (- (window-width) 10)))
 
 ;;=======================================
 ;; good for inserting require statements
