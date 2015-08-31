@@ -18,20 +18,21 @@
    flx-ido
    osx-clipboard
    expand-region
-   ace-jump-mode
    emmet-mode
    full-ack
    web-mode
    helm
    helm-projectile
    go-mode
-   auto-complete
    zencoding-mode
+   company
    clojure-mode
    cider
    magit
+   csharp-mode
    fsharp-mode
    2048-game
+   omnisharp
    js2-mode
    avy
    markdown-mode
@@ -53,7 +54,6 @@
 
 (load "~/.emacs.d/evil-tmux-navigator/navigate.el")
 (load "~/.emacs.d/railscasts-theme/railscasts-theme.el")
-(load "~/.emacs.d/secret-functions.el")
 
 (require 'exec-path-from-shell)
 (require 'evil)
@@ -67,11 +67,9 @@
 (require 'projectile)
 (require 'osx-clipboard)
 (require 'expand-region)
-(require 'ace-jump-mode)
 (require 'helm)
 (require 'helm-config)
 (require 'go-mode)
-(require 'auto-complete)
 (require 'full-ack)
 (require 'zencoding-mode)
 (require 'web-mode)
@@ -86,8 +84,9 @@
 (require 'diminish)
 (require 'hl-line)
 (require 'hl-line+)
-
-
+(require 'csharp-mode)
+(require 'omnisharp)
+(require 'company)
 
 ;;=====================================
 ;;highlight buffer when idle
@@ -124,9 +123,7 @@
 ;;=====================================
 ;;evil
 ;;=====================================
-
-;;vim's 'word' includes _ and -
-(modify-syntax-entry ?- "w")
+;;vim's 'word' includes _
 (modify-syntax-entry ?_ "w")
 
 ;;=====================================
@@ -144,13 +141,6 @@
   (interactive)
   (setq js-indent-level 4)
   (setq tab-width 4))
-
-(defun amir/next-search-to-top ()
-  "Primarily for presentations, finds next occurence of string and scrolls it to the top"
-  (interactive)
-  (progn
-    (call-interactively (evil-next-search 1))
-    (call-interactively (evil-scroll-line-to-top))))
 
 (defun amir/previous-search-to-top ()
   "Primarily for presentations, finds previous occurence of string and scrolls it to the top"
@@ -188,7 +178,6 @@
   "." 'ido-dired
   "s" 'magit-status
   "h" 'vc-print-log
-  "n" 'amir/next-search-to-top
   ")" 'next-buffer
   "(" 'previous-buffer
   "p" 'amir/previous-search-to-top
@@ -200,6 +189,7 @@
   "3" 'amir/resize-window-vertical-
   "1" 'amir/resize-window-horizontal-
   "4" 'amir/resize-window-horizontal+
+  "x" 'amir/write-quit
   "i" 'install-packages)
 
 (defun amir/edit-init-el ()
@@ -222,6 +212,11 @@
     (`fsharp-mode (fsharp-eval-region (point) (mark)))
     (_ (eval-last-sexp nil))))
 
+(defun amir/write-quit ()
+  (interactive)
+  (evil-save nil t)
+  (kill-buffer-and-window))
+
 ;;=====================================
 ;; avy
 ;;=====================================
@@ -233,12 +228,25 @@
 ;;=====================================
 (evil-mode 1)
 
-(define-key evil-normal-state-map [escape] 'keyboard-quit) (define-key evil-visual-state-map [escape] 'keyboard-quit)
+;; (eval-after-load "evil-maps"
+;;   (dolist (map '(evil-motion-state-map
+;;                  evil-insert-state-map
+;;                  evil-emacs-state-map))
+;;     (define-key (eval map) "\C-n" 'company-complete-selection)))
+
+(define-key evil-normal-state-map [escape] 'keyboard-quit)
+(define-key evil-visual-state-map [escape] 'keyboard-quit)
 (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+
+(defun amir/auto-complete-or-default ()
+  (interactive)
+  (company-complete-selection)
+  (company-complete)
+  (self-insert-command 1))
 
 ;; Remap org-mode meta keys for convenience
 (mapcar (lambda (state)
@@ -266,13 +274,13 @@
 
 (evil-terminal-cursor-change)
 
+
 ;;=====================================
 ;;key chord
 ;;=====================================
 (key-chord-mode 1)
 ;;(key-chord-define evil-insert-state-map "jk" 'evil-normal-state)
 ;;(key-chord-define evil-insert-state-map "kj" 'evil-normal-state)
-
 
 ;;=====================================
 ;;color theme configuration
@@ -371,8 +379,6 @@
 
 (setq css-indent-offset 2)
 
-
-
 ;;=====================================
 ;; Tmux splits
 ;;=====================================
@@ -390,6 +396,7 @@
   '(lambda () (interactive) (amir/emacs-or-tmux "right" "tmux next-window")))
 (global-set-key (kbd "C-h")
   '(lambda () (interactive) (amir/emacs-or-tmux "left"  "tmux previous-window")))
+
 
 ;;========================================
 ;;auto mode list for different file types
@@ -424,9 +431,30 @@
 ;;=====================================
 ;; auto complete
 ;;=====================================
-(global-auto-complete-mode 1)
-(setq ac-auto-show-menu 0.1)
-(ac-config-default)
+;;(global-auto-complete-mode 1)
+;;(setq ac-auto-show-menu 0.1)
+;;(ac-config-default)
+
+(company-mode)
+(add-hook 'after-init-hook 'global-company-mode)
+(setq company-idle-delay 0.03)
+(setq company-minimum-prefix-length 1)
+(setq company-require-match 'nil)
+(setq company-show-numbers 't)
+(setq omnisharp-company-match-type 'company-match-flx)
+(setq gc-cons-threshold 20000000)
+
+(defun amir/company-complete ()
+  (interactive)
+  (progn
+    (company-select-next)
+    ))
+
+(eval-after-load 'company
+  '(progn
+     (define-key company-active-map (kbd "<backtab>") 'company-select-previous)
+     (define-key company-active-map (kbd "TAB") 'amir/company-complete)
+     (define-key company-active-map [tab] 'amir/company-complete)))
 
 
 ;;=====================================
@@ -508,6 +536,7 @@
   (interactive)
   (evil-window-set-width (- (window-width) 10)))
 
+
 ;;=======================================
 ;; good for inserting require statements
 ;; function will add the relative path to
@@ -517,7 +546,9 @@
   (interactive `(,(ido-read-file-name "File Name: ") ,current-prefix-arg))
   (cond ((eq '- args) (insert (expand-file-name filename)))
         ((not (null args)) (insert filename))
-        (t (insert (file-relative-name filename)))))
+        (t (progn
+             (evil-append 1)
+             (insert (file-relative-name filename))))))
 
 ;;=========================================
 ;; magit stuff
