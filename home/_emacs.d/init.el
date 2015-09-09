@@ -9,6 +9,7 @@
 ;;=====================================
 
 (setq package-list '(
+   cider
    auto-complete
    scala-mode2
    sbt-mode
@@ -317,6 +318,7 @@
  '(avy-lead-face-0 ((t (:background "cyan" :foreground "black"))))
  '(avy-lead-face-1 ((t (:background "cyan" :foreground "black"))))
  '(col-highlight ((t (:background "color-233"))))
+ '(custom-variable-tag ((t (:foreground "cyan" :weight bold))))
  '(diff-added ((t (:inherit diff-changed :background "#ddffdd" :foreground "black"))))
  '(diff-header ((t (:background "grey80" :foreground "black"))))
  '(diff-removed ((t (:inherit diff-changed :background "#ffdddd" :foreground "black"))))
@@ -325,6 +327,13 @@
  '(js2-external-variable ((t (:foreground "color-136"))))
  '(js2-function-param ((t (:foreground "color-81"))))
  '(lazy-highlight ((t (:background "black" :foreground "white" :underline t))))
+ '(magit-diff-added ((t (:background "black" :foreground "#22aa22"))))
+ '(magit-diff-added-highlight ((t (:background "black" :foreground "#22aa22"))))
+ '(magit-diff-context-highlight ((t (:background "black" :foreground "brightgreen"))))
+ '(magit-diff-hunk-heading-highlight ((t (:background "black" :foreground "white"))))
+ '(magit-diff-removed ((t (:background "brightblack" :foreground "#aa2222"))))
+ '(magit-diff-removed-highlight ((t (:background "black" :foreground "#aa2222"))))
+ '(magit-section-highlight ((t (:background "black"))))
  '(mode-line ((t (:background "color-130" :foreground "white" :box nil))))
  '(mode-line-buffer-id ((t (:background "brightred" :foreground "white"))))
  '(neo-dir-link-face ((t (:foreground "cyan"))))
