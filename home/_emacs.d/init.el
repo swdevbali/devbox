@@ -9,11 +9,13 @@
 ;;=====================================
 
 (setq package-list '(
+   auto-complete
+   scala-mode2
+   sbt-mode
    exec-path-from-shell
    evil
    evil-leader
    color-theme
-   key-chord
    ido-vertical-mode
    flx-ido
    osx-clipboard
@@ -23,13 +25,9 @@
    web-mode
    helm
    helm-projectile
-   go-mode
    zencoding-mode
    company
-   clojure-mode
-   cider
    magit
-   csharp-mode
    fsharp-mode
    2048-game
    omnisharp
@@ -55,12 +53,12 @@
 (load "~/.emacs.d/evil-tmux-navigator/navigate.el")
 (load "~/.emacs.d/railscasts-theme/railscasts-theme.el")
 
+(require 'auto-complete)
 (require 'exec-path-from-shell)
 (require 'evil)
 (require 'evil-leader)
 (require 'navigate)
 (require 'color-theme)
-(require 'key-chord)
 (require 'ido)
 (require 'ido-vertical-mode)
 (require 'flx-ido)
@@ -69,7 +67,6 @@
 (require 'expand-region)
 (require 'helm)
 (require 'helm-config)
-(require 'go-mode)
 (require 'full-ack)
 (require 'zencoding-mode)
 (require 'web-mode)
@@ -84,7 +81,6 @@
 (require 'diminish)
 (require 'hl-line)
 (require 'hl-line+)
-(require 'csharp-mode)
 (require 'omnisharp)
 (require 'company)
 
@@ -100,12 +96,11 @@
 (diminish 'projectile-mode "")
 (diminish 'osx-clipboard-mode "")
 (diminish 'undo-tree-mode "")
-(diminish 'magit-auto-revert-mode "")
-(diminish 'auto-complete-mode "")
+;;(diminish 'magit-auto-revert-mode "")
 
 ;;=====================================
 ;;general configuration
-;;=====================================
+;;===================================== song_id, delay
 (menu-bar-mode -1) ;;remove menu bar
 (define-key global-map (kbd "RET") 'newline-and-indent) ;;auto indent on new line
 (setq-default truncate-lines t)
@@ -123,8 +118,6 @@
 ;;=====================================
 ;;evil
 ;;=====================================
-;;vim's 'word' includes _
-(modify-syntax-entry ?_ "w")
 
 ;;=====================================
 ;;evil leader
@@ -274,6 +267,7 @@
 
 (evil-terminal-cursor-change)
 
+(modify-syntax-entry ?_ "w")
 
 ;;=====================================
 ;;key chord
@@ -444,17 +438,38 @@
 (setq omnisharp-company-match-type 'company-match-flx)
 (setq gc-cons-threshold 20000000)
 
-(defun amir/company-complete ()
+(defun amir/company-complete-paren ()
   (interactive)
   (progn
-    (company-select-next)
-    ))
+    (company-complete-selection)
+    (insert "(")))
+
+(defun amir/company-complete-end-paren ()
+  (interactive)
+  (progn
+    (company-complete-selection)
+    (insert ")")))
+
+(defun amir/company-complete-. ()
+  (interactive)
+  (progn
+    (company-complete-selection)
+    (insert ".")))
+
+(defun amir/company-complete-comma ()
+  (interactive)
+  (progn
+    (company-complete-selection)
+    (insert ",")))
 
 (eval-after-load 'company
   '(progn
      (define-key company-active-map (kbd "<backtab>") 'company-select-previous)
-     (define-key company-active-map (kbd "TAB") 'amir/company-complete)
-     (define-key company-active-map [tab] 'amir/company-complete)))
+     (define-key company-active-map (kbd "TAB") 'company-select-next)
+     (define-key company-active-map (kbd ".") 'amir/company-complete-.)
+     (define-key company-active-map (kbd ",") 'amir/company-complete-comma)
+     (define-key company-active-map (kbd ")") 'amir/company-complete-end-paren)
+     (define-key company-active-map (kbd "(") 'amir/company-complete-paren)))
 
 
 ;;=====================================
