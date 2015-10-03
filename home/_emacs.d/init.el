@@ -40,6 +40,9 @@
    diminish
    hl-line
    hl-line+
+   flymake-ruby
+   scss-mode
+   jsx-mode
    projectile))
 
 (package-initialize)
@@ -84,6 +87,10 @@
 (require 'hl-line+)
 (require 'omnisharp)
 (require 'company)
+(require 'flymake-ruby)
+(require 'scss-mode)
+(require 'jsx-mode)
+
 
 ;;=====================================
 ;;highlight buffer when idle
@@ -105,6 +112,7 @@
 (menu-bar-mode -1) ;;remove menu bar
 (define-key global-map (kbd "RET") 'newline-and-indent) ;;auto indent on new line
 (setq-default truncate-lines t)
+(setq visible-bell 1)
 
 ;;=====================================
 ;; backups and scratch buffer
@@ -119,6 +127,7 @@
 ;;=====================================
 ;;evil
 ;;=====================================
+(modify-syntax-entry ?_ "w")
 
 ;;=====================================
 ;;evil leader
@@ -201,10 +210,13 @@
 
 (defun amir/eval-dwim ()
   (interactive)
-  (pcase major-mode
-    (`clojure-mode (cider-eval-defun-at-point))
-    (`fsharp-mode (fsharp-eval-region (point) (mark)))
-    (_ (eval-last-sexp nil))))
+    (pcase major-mode
+      (`clojure-mode (cider-eval-defun-at-point))
+      (`fsharp-mode
+       (progn
+         (fsharp-eval-region (point) (mark))
+         (keyboard-quit)))
+      (_ (eval-last-sexp nil))))
 
 (defun amir/write-quit ()
   (interactive)
@@ -268,7 +280,6 @@
 
 (evil-terminal-cursor-change)
 
-(modify-syntax-entry ?_ "w")
 
 ;;=====================================
 ;;key chord
@@ -322,6 +333,8 @@
  '(diff-added ((t (:inherit diff-changed :background "#ddffdd" :foreground "black"))))
  '(diff-header ((t (:background "grey80" :foreground "black"))))
  '(diff-removed ((t (:inherit diff-changed :background "#ffdddd" :foreground "black"))))
+ '(flymake-errline ((t (:background "color-52" :foreground "white"))))
+ '(flymake-warnline ((t (:background "yellow" :foreground "white"))))
  '(hl-line ((t (:background "brightblack"))))
  '(jabber-activity-personal-face ((t (:foreground "red" :weight bold))))
  '(js2-external-variable ((t (:foreground "color-136"))))
@@ -404,12 +417,15 @@
 ;;========================================
 ;;auto mode list for different file types
 ;;========================================
-(add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+(autoload 'scss-mode "scss-mode")
+(add-to-list 'auto-mode-alist '("\\.scss\\'" . scss-mode))
+
 
 ;;=========================================
 ;;jsx linter
 ;;========================================
-(add-to-list 'auto-mode-alist '("\\.jsx$" . web-mode))
+(add-to-list 'auto-mode-alist '("\\.jsx$" . jsx-mode))
 
 ;; disable jshint since we prefer eslint checking
 (setq-default flycheck-disabled-checkers
@@ -424,6 +440,12 @@
   (append flycheck-disabled-checkers
     '(json-jsonlist)))
 
+;;=====================================
+;;ruby syntax highlighting
+;;=====================================
+(add-to-list 'auto-mode-alist '("\\.rb$" . ruby-mode))
+
+(add-hook 'ruby-mode-hook 'flymake-ruby-load)
 
 ;;=====================================
 ;; tab width 2
@@ -446,6 +468,13 @@
 (setq company-show-numbers 't)
 (setq omnisharp-company-match-type 'company-match-flx)
 (setq gc-cons-threshold 20000000)
+(setq company-dabbrev-downcase 'nil)
+
+(defun amir/company-complete-equal-sign ()
+  (interactive)
+  (progn
+    (company-complete-selection)
+    (insert " =")))
 
 (defun amir/company-complete-paren ()
   (interactive)
@@ -477,6 +506,7 @@
      (define-key company-active-map (kbd "TAB") 'company-select-next)
      (define-key company-active-map (kbd ".") 'amir/company-complete-.)
      (define-key company-active-map (kbd ",") 'amir/company-complete-comma)
+     (define-key company-active-map (kbd "=") 'amir/company-complete-equal-sign)
      (define-key company-active-map (kbd ")") 'amir/company-complete-end-paren)
      (define-key company-active-map (kbd "(") 'amir/company-complete-paren)))
 
@@ -511,6 +541,15 @@
 ;;=====================================
 ;;change auto save directory
 ;;=====================================
+(setq
+   backup-by-copying t      ; don't clobber symlinks
+   backup-directory-alist
+    '(("." . "~/.saves"))    ; don't litter my fs tree
+   delete-old-versions t
+   kept-new-versions 6
+   kept-old-versions 2
+   version-control t)       ; use versioned backups
+
 (setq backup-directory-alist
   `((".*" . ,temporary-file-directory)))
 
