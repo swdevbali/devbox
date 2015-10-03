@@ -104,7 +104,6 @@
 (diminish 'projectile-mode "")
 (diminish 'osx-clipboard-mode "")
 (diminish 'undo-tree-mode "")
-;;(diminish 'magit-auto-revert-mode "")
 
 ;;=====================================
 ;;general configuration
@@ -113,21 +112,6 @@
 (define-key global-map (kbd "RET") 'newline-and-indent) ;;auto indent on new line
 (setq-default truncate-lines t)
 (setq visible-bell 1)
-
-;;=====================================
-;; backups and scratch buffer
-;;=====================================
-(setq backup-directory-alist
-      `((".*" . ,temporary-file-directory)))
-
-(setq auto-save-file-name-transforms
-      `((".*" ,temporary-file-directory t)))
-
-
-;;=====================================
-;;evil
-;;=====================================
-(modify-syntax-entry ?_ "w")
 
 ;;=====================================
 ;;evil leader
@@ -446,6 +430,7 @@
 (add-to-list 'auto-mode-alist '("\\.rb$" . ruby-mode))
 
 (add-hook 'ruby-mode-hook 'flymake-ruby-load)
+(add-hook 'ruby-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
 
 ;;=====================================
 ;; tab width 2
@@ -537,27 +522,6 @@
      (with-current-buffer buffer
        (buffer-string))))
   (message "Output copied to kill ring"))
-
-;;=====================================
-;;change auto save directory
-;;=====================================
-(setq
-   backup-by-copying t      ; don't clobber symlinks
-   backup-directory-alist
-    '(("." . "~/.saves"))    ; don't litter my fs tree
-   delete-old-versions t
-   kept-new-versions 6
-   kept-old-versions 2
-   version-control t)       ; use versioned backups
-
-(setq backup-directory-alist
-  `((".*" . ,temporary-file-directory)))
-
-(setq auto-save-file-name-transforms
-  `((".*" ,temporary-file-directory t)))
-
-(setq delete-old-versions t)
-
 
 ;;=====================================
 ;;tail log files
