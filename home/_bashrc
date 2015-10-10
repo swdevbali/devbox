@@ -17,6 +17,7 @@ export PATH="$CLOJURESCRIPT_HOME/bin:$PATH"
 export RUBYMOTION_ANDROID_SDK="/Users/amiralirajan/.rubymotion-android/sdk"
 export RUBYMOTION_ANDROID_NDK="/Users/amiralirajan/.rubymotion-android/ndk"
 export RBENV_VERSION=2.1.1
+export CHROME_LOG_FILE="chrome_debug.log"
 
 alias wat=alias
 
@@ -56,6 +57,10 @@ alias ft="git add -A && git reset --hard head"
 alias jj='eval $(thefuck $(fc -ln -1)); history -r'
 alias pom='countdown "00:25:00"'
 alias watchhelp="echo fswatch spec/main_spec.rb \| xargs -n1 -I{} rake spec:device"
+alias attach="tmux -f ._tmux.conf attach"
+alias tm="tmux"
+alias tableflip="echo \"(╯°□°）╯︵ ┻━┻\" | pbcopy"
+alias rd="rake device"
 
 countdown()
 (
