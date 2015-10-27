@@ -114,6 +114,7 @@
 ;;Temp files
 (defconst emacs-tmp-dir (format "%s/%s%s/" temporary-file-directory "emacs" (user-uid)))
 
+
 (setq backup-directory-alist
       `((".*" . ,emacs-tmp-dir)))
 (setq auto-save-file-name-transforms
@@ -126,6 +127,7 @@
 ;;This is so I can spam the [ESC] key and eventually exit whatever state Emacs has put me in
 (define-key evil-normal-state-map [escape] 'keyboard-quit)
 (define-key evil-visual-state-map [escape] 'keyboard-quit)
+;;(define-key evil-insert-state-map (kbd "C-n") 'keyboard-quit)
 (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
@@ -158,6 +160,7 @@
 (evil-leader/set-key
   "c" 'comment-dwim
   "e" 'amir/eval-dwim
+  "E" 'amir/eval-file-dwim
   "v" 'web-mode
   "V" 'js2-mode
   "K" 'amir/edit-init-el
@@ -165,6 +168,7 @@
   "j" 'avy-goto-line
   "w" 'avy-goto-word-0
   "m" 'amir/split-and-find
+  "M" 'amir/hsplit-and-find
   "g" 'projectile-find-file
   "t" 'amir/touch
   "a" 'amir/foo-inline
@@ -238,14 +242,29 @@
      (shell-command tmux-cmd)))
 
 (global-set-key (kbd "C-j")
-  '(lambda () (interactive) (amir/emacs-or-tmux "up"  "tmux select-pane -U")))
+  '(lambda ()
+     (interactive)
+     (evil-normal-state)
+     (amir/emacs-or-tmux "up" "tmux select-pane -U")
+     (evil-normal-state)))
 (global-set-key (kbd "C-k")
-  '(lambda () (interactive) (amir/emacs-or-tmux "down"  "tmux select-pane -D")))
+  '(lambda ()
+     (interactive)
+     (evil-normal-state)
+     (amir/emacs-or-tmux "down" "tmux select-pane -D")
+     (evil-normal-state)))
 (global-set-key (kbd "C-l")
-  '(lambda () (interactive) (amir/emacs-or-tmux "right" "tmux next-window")))
+  '(lambda ()
+     (interactive)
+     (evil-normal-state)
+     (amir/emacs-or-tmux "right" "tmux next-window")
+     (evil-normal-state)))
 (global-set-key (kbd "C-h")
-  '(lambda () (interactive) (amir/emacs-or-tmux "left"  "tmux previous-window")))
-
+  '(lambda ()
+     (interactive)
+     (evil-normal-state)
+     (amir/emacs-or-tmux "left" "tmux previous-window")
+     (evil-normal-state)))
 
 ;; load this mode when this file is opened
 (autoload 'scss-mode "scss-mode")
@@ -296,6 +315,8 @@
 (setq omnisharp-company-match-type 'company-match-flx)
 (setq gc-cons-threshold 20000000)
 (setq company-dabbrev-downcase 'nil)
+(eval-after-load 'company
+    '(add-to-list 'company-backends 'company-omnisharp))
 
 
 (defun amir/company-complete-equal-sign ()
@@ -331,6 +352,7 @@
 ;; Make autocomplete insert text if code based keys are pressed
 (eval-after-load 'company
   '(progn
+     (define-key company-active-map (kbd "C-n") 'company-abort)
      (define-key company-active-map (kbd "<backtab>") 'company-select-previous)
      (define-key company-active-map (kbd "TAB") 'company-select-next)
      (define-key company-active-map (kbd ".") 'amir/company-complete-.)
@@ -463,11 +485,28 @@
   (evil-window-vsplit)
   (projectile-find-file))
 
+(defun amir/hsplit-and-find ()
+  "Opens a new split window and brings up projectile so I can search for a file."
+  (interactive)
+  (evil-window-split)
+  (projectile-find-file))
+
 (defun amir/eval-dwim ()
   "Send the current selected \"stuff\" to the repl."
   (interactive)
     (pcase major-mode
       (`clojure-mode (cider-eval-defun-at-point))
+      (`fsharp-mode
+       (progn
+         (fsharp-eval-region (point) (mark))
+         (keyboard-quit)))
+      (_ (eval-last-sexp nil))))
+
+(defun amir/eval-file-dwim ()
+  "Send the current selected \"stuff\" to the repl."
+  (interactive)
+    (pcase major-mode
+      (`clojure-mode (cider-eval-file buffer-file-name))
       (`fsharp-mode
        (progn
          (fsharp-eval-region (point) (mark))
@@ -522,4 +561,6 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ack-use-environment t))
+ '(ack-use-environment t)
+ '(omnisharp-server-executable-path
+   "/Users/amiralirajan/Projects/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe"))

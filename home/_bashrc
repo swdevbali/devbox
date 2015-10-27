@@ -48,7 +48,9 @@ alias gp="git push"
 alias g="git"
 alias gc="git checkout"
 alias gcm="git checkout master"
+alias gcd="git checkout dev"
 alias gmm="git merge master"
+alias gmd="git merge dev"
 alias gd="git diff"
 alias gl="git pull"
 alias gr="git reset"
@@ -61,6 +63,11 @@ alias attach="tmux -f ._tmux.conf attach"
 alias tm="tmux"
 alias tableflip="echo \"(╯°□°）╯︵ ┻━┻\" | pbcopy"
 alias rd="rake device"
+alias ackf=ackffun
+
+ackffun() {
+    ack -lr --print0 $1 * | xargs -I {} -0 echo {}
+}
 
 countdown()
 (
