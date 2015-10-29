@@ -349,6 +349,12 @@
     (company-complete-selection)
     (insert ",")))
 
+(defun amir/company-complete-end-curly ()
+  (interactive)
+  (progn
+    (company-complete-selection)
+    (insert "}")))
+
 ;; Make autocomplete insert text if code based keys are pressed
 (eval-after-load 'company
   '(progn
@@ -358,6 +364,7 @@
      (define-key company-active-map (kbd ".") 'amir/company-complete-.)
      (define-key company-active-map (kbd ",") 'amir/company-complete-comma)
      (define-key company-active-map (kbd "=") 'amir/company-complete-equal-sign)
+     (define-key company-active-map (kbd "}") 'amir/company-complete-end-curly)
      (define-key company-active-map (kbd ")") 'amir/company-complete-end-paren)
      (define-key company-active-map (kbd "(") 'amir/company-complete-paren)))
 
@@ -366,6 +373,12 @@
 
 ;; magit stuff
 (setq magit-last-seen-setup-instructions "1.4.0")
+
+(add-hook 'magit-setup-hook 'vim-like-magit-keys)
+
+(defun vim-like-magit-keys ()
+  "Add vim like keybindings for ido."
+  (define-key magit-status-mode-map (kbd "k") nil))
 
 ;;custom methods
 (defun amir/resize-equal ()
