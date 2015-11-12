@@ -10,6 +10,7 @@
 
 (setq package-list '(
    paredit
+   ag
    cider
    auto-complete
    scala-mode2
@@ -61,7 +62,6 @@
 (require 'exec-path-from-shell)
 (require 'evil)
 (require 'evil-leader)
-(require 'navigate)
 (require 'color-theme)
 (require 'ido)
 (require 'ido-vertical-mode)
@@ -90,9 +90,11 @@
 (require 'flymake-ruby)
 (require 'scss-mode)
 (require 'jsx-mode)
+;(require 'ag)
 
 (color-theme-initialize)
 (load "~/.emacs.d/evil-tmux-navigator/navigate.el")
+(require 'navigate)
 (load "~/.emacs.d/railscasts-theme/railscasts-theme.el")
 (osx-clipboard-mode 1)
 
@@ -104,6 +106,7 @@
 (diminish 'projectile-mode "")
 (diminish 'osx-clipboard-mode "")
 (diminish 'undo-tree-mode "")
+(diminish 'company-mode "")
 
 ;;Misc editor configuration
 (menu-bar-mode -1)
@@ -220,7 +223,9 @@
 
 (ido-mode 1)
 (ido-everywhere 1)
-(flx-ido-mode -1)
+(flx-ido-mode 1)
+(setq ido-enable-flex-matching t)
+(setq ido-use-faces t)
 (setq ido-enable-flex-matching t)
 
 ;; Deletes trailing whitespace
@@ -287,6 +292,12 @@
   (append flycheck-disabled-checkers
     '(json-jsonlist)))
 
+;; https://github.com/purcell/exec-path-from-shell
+;; only need exec-path-from-shell on OSX
+;; this hopefully sets up path and other vars better
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
+
 ;;ruby syntax highlighting
 (add-to-list 'auto-mode-alist '("\\.rb$" . ruby-mode))
 
@@ -294,7 +305,14 @@
 (add-hook 'ruby-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
 
 ;; tab width 2
-(setq js-indent-level 2)
+(defun my-web-mode-hook ()
+  "Hooks for Web mode. Adjust indents"
+  ;;; http://web-mode.org/
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-code-indent-offset 4))
+
+(add-hook 'web-mode-hook  'my-web-mode-hook)
 
 ;;dont auto complete numbers or things with special characters in it
 (push (apply-partially
@@ -566,6 +584,10 @@
  '(neo-header-face ((t (:foreground "color-33"))))
  '(secondary-selection ((t (:background "color-236"))))
  '(shadow ((t (:foreground "cyan"))))
+ '(smerge-markers ((t (:background "grey85" :foreground "black"))))
+ '(smerge-mine ((t (:background "#ffdddd" :foreground "black"))))
+ '(smerge-other ((t (:background "#ddffdd" :foreground "black"))))
+ '(smerge-refined-added ((t (:inherit smerge-refined-change :background "#aaffaa" :foreground "black"))))
  '(web-mode-html-tag-bracket-face ((t (:foreground "color-250"))))
  '(web-mode-html-tag-face ((t (:foreground "yellow")))))
 
