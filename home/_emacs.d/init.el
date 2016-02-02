@@ -18,13 +18,13 @@
    exec-path-from-shell
    evil
    evil-leader
+   evil-matchit
    color-theme
    ido-vertical-mode
    flx-ido
    osx-clipboard
    expand-region
    emmet-mode
-   full-ack
    web-mode
    helm
    helm-projectile
@@ -34,7 +34,6 @@
    fsharp-mode
    2048-game
    omnisharp
-   js2-mode
    avy
    markdown-mode
    flycheck
@@ -44,9 +43,11 @@
    hl-line+
    flymake-ruby
    scss-mode
-   jsx-mode
    yasnippet
+   editorconfig
    ensime
+   remember
+   tern
    projectile))
 
 (package-initialize)
@@ -62,6 +63,7 @@
 (require 'exec-path-from-shell)
 (require 'evil)
 (require 'evil-leader)
+(require 'evil-matchit)
 (require 'color-theme)
 (require 'ido)
 (require 'ido-vertical-mode)
@@ -71,14 +73,12 @@
 (require 'expand-region)
 (require 'helm)
 (require 'helm-config)
-(require 'full-ack)
 (require 'zencoding-mode)
 (require 'web-mode)
 (require 'magit)
 (require 'markdown-mode)
 (require 'emmet-mode)
 (require 'fsharp-mode)
-(require 'js2-mode)
 (require 'avy)
 (require 'flycheck)
 (require 'json-mode)
@@ -89,8 +89,10 @@
 (require 'company)
 (require 'flymake-ruby)
 (require 'scss-mode)
-(require 'jsx-mode)
-;(require 'ag)
+(require 'remember)
+(require 'tern)
+(require 'editorconfig)
+(require 'ag)
 
 (color-theme-initialize)
 (load "~/.emacs.d/evil-tmux-navigator/navigate.el")
@@ -113,6 +115,7 @@
 (define-key global-map (kbd "RET") 'newline-and-indent)
 (setq-default truncate-lines t)
 (setq visible-bell 1)
+(editorconfig-mode 1)
 
 ;;Temp files
 (defconst emacs-tmp-dir (format "%s/%s%s/" temporary-file-directory "emacs" (user-uid)))
@@ -126,6 +129,7 @@
       emacs-tmp-dir)
 ;;Evil
 (evil-mode 1)
+(global-evil-matchit-mode 1)
 
 ;;This is so I can spam the [ESC] key and eventually exit whatever state Emacs has put me in
 (define-key evil-normal-state-map [escape] 'keyboard-quit)
@@ -165,7 +169,6 @@
   "e" 'amir/eval-dwim
   "E" 'amir/eval-file-dwim
   "v" 'web-mode
-  "V" 'js2-mode
   "K" 'amir/edit-init-el
   "k" 'amir/reload-init-el
   "j" 'avy-goto-line
@@ -273,11 +276,11 @@
 
 ;; load this mode when this file is opened
 (autoload 'scss-mode "scss-mode")
-(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.js$" . javascript-mode))
+(add-to-list 'auto-mode-alist '("\\.jsx$" . javascript-mode))
 (add-to-list 'auto-mode-alist '("\\.scss\\'" . scss-mode))
 
-;;jsx linter
-(add-to-list 'auto-mode-alist '("\\.jsx$" . jsx-mode))
+(add-hook 'after-init-hook #'global-flycheck-mode)
 
 ;; disable jshint since we prefer eslint checking
 (setq-default flycheck-disabled-checkers
@@ -286,6 +289,7 @@
 
 ;; use eslint with web-mode for jsx files
 (flycheck-add-mode 'javascript-eslint 'web-mode)
+(flycheck-add-mode 'javascript-eslint 'javascript-mode)
 
 ;; disable json-jsonlist checking for json files
 (setq-default flycheck-disabled-checkers
@@ -310,7 +314,7 @@
   ;;; http://web-mode.org/
   (setq web-mode-markup-indent-offset 2)
   (setq web-mode-css-indent-offset 2)
-  (setq web-mode-code-indent-offset 4))
+  (setq web-mode-code-indent-offset 2))
 
 (add-hook 'web-mode-hook  'my-web-mode-hook)
 
@@ -472,8 +476,8 @@
 (defun amir/tab-space-four ()
   "Sets javascript and default tab space to four spaces."
   (interactive)
-  (setq js-indent-level 4)
-  (setq tab-width 4))
+  (setq js-indent-level 2)
+  (setq tab-width 2))
 
 (defun amir/previous-search-to-top ()
   "Primarily for presentations, finds previous occurence of string and scrolls it to the top"
@@ -525,13 +529,13 @@
 (defun amir/eval-dwim ()
   "Send the current selected \"stuff\" to the repl."
   (interactive)
-    (pcase major-mode
-      (`clojure-mode (cider-eval-defun-at-point))
-      (`fsharp-mode
-       (progn
-         (fsharp-eval-region (point) (mark))
-         (keyboard-quit)))
-      (_ (eval-last-sexp nil))))
+  (pcase major-mode
+    (`clojure-mode (cider-eval-defun-at-point))
+    (`fsharp-mode
+     (progn
+       (fsharp-eval-region (point) (mark))
+       (keyboard-quit)))
+    (_ (eval-last-sexp nil))))
 
 (defun amir/eval-file-dwim ()
   "Send the current selected \"stuff\" to the repl."
@@ -558,6 +562,7 @@
  '(avy-lead-face ((t (:background "cyan" :foreground "black"))))
  '(avy-lead-face-0 ((t (:background "cyan" :foreground "black"))))
  '(avy-lead-face-1 ((t (:background "cyan" :foreground "black"))))
+ '(avy-lead-face-2 ((t (:background "brightblack" :foreground "white"))))
  '(col-highlight ((t (:background "color-233"))))
  '(custom-variable-tag ((t (:foreground "cyan" :weight bold))))
  '(diff-added ((t (:inherit diff-changed :background "#ddffdd" :foreground "black"))))
@@ -598,4 +603,5 @@
  ;; If there is more than one, they won't work right.
  '(ack-use-environment t)
  '(omnisharp-server-executable-path
-   "/Users/amiralirajan/Projects/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe"))
+   "/Users/amiralirajan/Projects/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
+ '(org-agenda-files (quote ("~/life.org"))))
