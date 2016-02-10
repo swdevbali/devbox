@@ -31,6 +31,7 @@ alias b="cd .."
 alias lock="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
 alias sleepc="osascript -e 'tell application \"Finder\" to sleep'"
 alias vim="emacs"
+alias v="emacs"
 alias notes="cd ~/Notes"
 alias f="find . -name "
 alias cocos-help='echo ../cocos2d-x/tools/cocos2d-console/bin/cocos new "com.scratworkdevelopment.adarkroom" -l cpp -d adr-scaffolding'
@@ -39,6 +40,7 @@ alias matchtfs='echo http://git.match.corp/Match/CoreWeb'
 alias timesheet="echo https://iac.empowerwfm.com/wfmselfserve/ username: 144235"
 alias vpn="echo https://vpn.mct360.com"
 alias hc="cd ~/projects/CoreWeb"
+alias be="bundle exec"
 
 alias gdp="git diff HEAD@{1}"
 alias gcp="git checkout HEAD@{1}"
@@ -62,9 +64,17 @@ alias pom='countdown "00:25:00"'
 alias watchhelp="echo fswatch spec/main_spec.rb \| xargs -n1 -I{} rake spec:device"
 alias attach="tmux -f ._tmux.conf attach"
 alias tm="tmux"
-alias tableflip="echo \"(╯°□°）╯︵ ┻━┻\" | pbcopy"
 alias rd="rake device"
 alias ackf=ackffun
+alias flushdns="sudo killall -HUP mDNSResponder"
+alias kc=killselenium
+alias gcl="git checkout -"
+alias tfl="cat ~/.tableflips"
+
+tf()
+(
+  cat ~/.tableflips | grep $1 -A 1 | tail -1 | tr -d '\r' | pbcopy
+)
 
 ackffun() {
     ack -lr --print0 $1 * | xargs -I {} -0 echo {}
@@ -97,4 +107,9 @@ stopvpn()
     launchctl unload -w /Library/LaunchAgents/net.juniper.pulsetray.plist
     sudo launchctl unload -w /Library/LaunchDaemons/net.juniper.AccessService.plist
     osascript -e 'tell application "Junos Pulse" to quit'
+}
+
+killselenium()
+{
+    kill -9 $(ps -x | grep 'Google Chrome$' | awk '{print $1}')
 }
