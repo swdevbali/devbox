@@ -73,7 +73,7 @@ alias tfl="cat ~/.tableflips"
 
 tf()
 (
-  cat ~/.tableflips | grep $1 -A 1 | tail -1 | tr -d '\r' | pbcopy
+  cat ~/.tableflips | grep $1 -A 1 | tail -1 | tr -d '\r\n' | pbcopy
 )
 
 ackffun() {
