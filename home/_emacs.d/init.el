@@ -31,6 +31,8 @@
    zencoding-mode
    company
    magit
+   evil-magit
+   evil-org
    fsharp-mode
    2048-game
    omnisharp
@@ -59,6 +61,8 @@
   (unless (package-installed-p package)
     (package-install package)))
 
+(setq evil-want-C-i-jump nil)
+
 (require 'auto-complete)
 (require 'exec-path-from-shell)
 (require 'evil)
@@ -76,6 +80,7 @@
 (require 'zencoding-mode)
 (require 'web-mode)
 (require 'magit)
+(require 'evil-magit)
 (require 'markdown-mode)
 (require 'emmet-mode)
 (require 'fsharp-mode)
@@ -93,6 +98,8 @@
 (require 'tern)
 (require 'editorconfig)
 (require 'ag)
+(require 'yasnippet)
+(require 'evil-org)
 
 (color-theme-initialize)
 (load "~/.emacs.d/evil-tmux-navigator/navigate.el")
@@ -120,6 +127,11 @@
 ;;Temp files
 (defconst emacs-tmp-dir (format "%s/%s%s/" temporary-file-directory "emacs" (user-uid)))
 
+;;snippets
+(setq yas-snippet-dirs '("~/.emacs.d/snippets"))
+(yas-global-mode 1)
+(yas-reload-all)
+(define-key yas-keymap (kbd "ESC") 'yas-abort-snippet)
 
 (setq backup-directory-alist
       `((".*" . ,emacs-tmp-dir)))
@@ -162,15 +174,14 @@
 
 ;;Evil leader
 (global-evil-leader-mode)
-(evil-leader/set-leader ",")
+(evil-leader/set-leader "<SPC>")
 
 (evil-leader/set-key
   "c" 'comment-dwim
   "e" 'amir/eval-dwim
   "E" 'amir/eval-file-dwim
   "v" 'web-mode
-  "K" 'amir/edit-init-el
-  "k" 'amir/reload-init-el
+  "k" 'amir/load-life
   "j" 'avy-goto-line
   "w" 'avy-goto-word-0
   "m" 'amir/split-and-find
@@ -307,6 +318,7 @@
 
 (add-hook 'ruby-mode-hook 'flymake-ruby-load)
 (add-hook 'ruby-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
+(setq ruby-deep-indent-paren nil)
 
 ;; tab width 2
 (defun my-web-mode-hook ()
@@ -331,8 +343,8 @@
 (company-mode)
 (add-hook 'after-init-hook 'global-company-mode)
 (setq company-idle-delay 0.03)
-(setq company-minimum-prefix-length 1)
-(setq company-require-match 'nil)
+(setq company-minimum-prefix-length 2)
+;;(setq company-require-match 'nil)
 (setq company-show-numbers 't)
 (setq omnisharp-company-match-type 'company-match-flx)
 (setq gc-cons-threshold 20000000)
@@ -504,10 +516,10 @@
   (paredit-splice-sexp-killing-backward)
   (evil-insert 1))
 
-(defun amir/edit-init-el ()
+(defun amir/load-life ()
   "Fast way to bring up my init.el file."
   (interactive)
-  (evil-window-vnew nil "~/.emacs.d/init.el"))
+  (evil-window-vnew nil "~/.org/life.org"))
 
 (defun amir/reload-init-el ()
   "Fast way to reload my init.el file."
@@ -531,6 +543,7 @@
   (interactive)
   (pcase major-mode
     (`clojure-mode (cider-eval-defun-at-point))
+    (`clojurescript-mode (cider-eval-defun-at-point))
     (`fsharp-mode
      (progn
        (fsharp-eval-region (point) (mark))
@@ -587,6 +600,10 @@
  '(neo-dir-link-face ((t (:foreground "cyan"))))
  '(neo-file-link-face ((t (:foreground "white"))))
  '(neo-header-face ((t (:foreground "color-33"))))
+ '(org-agenda-structure ((t (:foreground "color-33"))))
+ '(org-document-title ((t (:foreground "blue" :weight bold))))
+ '(org-done ((t (:foreground "color-40" :weight bold))))
+ '(org-table ((t (:foreground "brightblue"))))
  '(secondary-selection ((t (:background "color-236"))))
  '(shadow ((t (:foreground "cyan"))))
  '(smerge-markers ((t (:background "grey85" :foreground "black"))))
@@ -602,6 +619,10 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ack-use-environment t)
+ '(jsx-indent-level 2)
  '(omnisharp-server-executable-path
    "/Users/amiralirajan/Projects/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
- '(org-agenda-files (quote ("~/life.org"))))
+ '(org-agenda-files (quote ("~/life.org")))
+ '(ruby-deep-arglist nil)
+ '(ruby-deep-indent-paren nil t)
+ '(web-mode-code-indent-offset 2))
