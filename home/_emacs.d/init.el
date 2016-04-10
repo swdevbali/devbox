@@ -50,6 +50,7 @@
    ensime
    remember
    tern
+   typit
    projectile))
 
 (package-initialize)
@@ -62,6 +63,10 @@
     (package-install package)))
 
 (setq evil-want-C-i-jump nil)
+;(setq org-directory "~/.org")
+(setq org-agenda-files (list "~/.org/life.org"))
+(setq shell-file-name "bash")
+(setq shell-command-switch "-ic")
 
 (require 'auto-complete)
 (require 'exec-path-from-shell)
@@ -100,6 +105,7 @@
 (require 'ag)
 (require 'yasnippet)
 (require 'evil-org)
+(require 'typit)
 
 (color-theme-initialize)
 (load "~/.emacs.d/evil-tmux-navigator/navigate.el")
@@ -179,7 +185,7 @@
 (evil-leader/set-key
   "c" 'comment-dwim
   "e" 'amir/eval-dwim
-  "E" 'amir/eval-file-dwim
+  "E" 'fsharp-eval-region
   "v" 'web-mode
   "k" 'amir/load-life
   "j" 'avy-goto-line
@@ -546,19 +552,17 @@
     (`clojurescript-mode (cider-eval-defun-at-point))
     (`fsharp-mode
      (progn
-       (fsharp-eval-region (point) (mark))
-       (keyboard-quit)))
+       (fsharp-eval-phrase)
+       (evil-next-line 1)))
     (_ (eval-last-sexp nil))))
+
 
 (defun amir/eval-file-dwim ()
   "Send the current selected \"stuff\" to the repl."
   (interactive)
     (pcase major-mode
       (`clojure-mode (cider-eval-file buffer-file-name))
-      (`fsharp-mode
-       (progn
-         (fsharp-eval-region (point) (mark))
-         (keyboard-quit)))
+      (`fsharp-mode (fsharp-eval-region (point) (mark)))
       (_ (eval-last-sexp nil))))
 
 (defun amir/write-quit ()
@@ -583,11 +587,13 @@
  '(diff-removed ((t (:inherit diff-changed :background "#ffdddd" :foreground "black"))))
  '(flymake-errline ((t (:background "color-52" :foreground "white"))))
  '(flymake-warnline ((t (:background "yellow" :foreground "white"))))
+ '(fsharp-usage-face ((t (:foreground "color-39"))))
  '(hl-line ((t (:background "brightblack"))))
  '(jabber-activity-personal-face ((t (:foreground "red" :weight bold))))
  '(js2-external-variable ((t (:foreground "color-136"))))
  '(js2-function-param ((t (:foreground "color-81"))))
  '(lazy-highlight ((t (:background "black" :foreground "white" :underline t))))
+ '(link ((t (:foreground "color-39" :underline t))))
  '(magit-diff-added ((t (:background "black" :foreground "#22aa22"))))
  '(magit-diff-added-highlight ((t (:background "black" :foreground "#22aa22"))))
  '(magit-diff-context-highlight ((t (:background "black" :foreground "brightgreen"))))
@@ -600,10 +606,12 @@
  '(neo-dir-link-face ((t (:foreground "cyan"))))
  '(neo-file-link-face ((t (:foreground "white"))))
  '(neo-header-face ((t (:foreground "color-33"))))
- '(org-agenda-structure ((t (:foreground "color-33"))))
+ '(org-agenda-structure ((t (:foreground "color-38"))))
+ '(org-date ((t (:foreground "color-81" :underline t))))
  '(org-document-title ((t (:foreground "blue" :weight bold))))
- '(org-done ((t (:foreground "color-40" :weight bold))))
+ '(org-done ((t (:foreground "color-28" :weight bold))))
  '(org-table ((t (:foreground "brightblue"))))
+ '(org-todo ((t (:foreground "color-196" :weight bold))))
  '(secondary-selection ((t (:background "color-236"))))
  '(shadow ((t (:foreground "cyan"))))
  '(smerge-markers ((t (:background "grey85" :foreground "black"))))
@@ -622,7 +630,7 @@
  '(jsx-indent-level 2)
  '(omnisharp-server-executable-path
    "/Users/amiralirajan/Projects/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
- '(org-agenda-files (quote ("~/life.org")))
+ '(org-agenda-files (quote ("~/.org/life.org")))
  '(ruby-deep-arglist nil)
  '(ruby-deep-indent-paren nil t)
  '(web-mode-code-indent-offset 2))
