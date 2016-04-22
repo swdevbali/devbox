@@ -63,10 +63,6 @@
     (package-install package)))
 
 (setq evil-want-C-i-jump nil)
-;(setq org-directory "~/.org")
-(setq org-agenda-files (list "~/.org/life.org"))
-(setq shell-file-name "bash")
-(setq shell-command-switch "-ic")
 
 (require 'auto-complete)
 (require 'exec-path-from-shell)
@@ -610,6 +606,7 @@
  '(org-date ((t (:foreground "color-81" :underline t))))
  '(org-document-title ((t (:foreground "blue" :weight bold))))
  '(org-done ((t (:foreground "color-28" :weight bold))))
+ '(org-scheduled ((t (:foreground "color-34"))))
  '(org-table ((t (:foreground "brightblue"))))
  '(org-todo ((t (:foreground "color-196" :weight bold))))
  '(secondary-selection ((t (:background "color-236"))))
@@ -630,7 +627,7 @@
  '(jsx-indent-level 2)
  '(omnisharp-server-executable-path
    "/Users/amiralirajan/Projects/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
- '(org-agenda-files (quote ("~/.org/life.org")))
+ '(org-agenda-files (list "~/.org/life.org"))
  '(ruby-deep-arglist nil)
  '(ruby-deep-indent-paren nil t)
  '(web-mode-code-indent-offset 2))
