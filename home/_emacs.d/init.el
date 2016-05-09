@@ -47,10 +47,11 @@
    scss-mode
    yasnippet
    editorconfig
-   ensime
    remember
    tern
    typit
+   js2-mode
+   tern
    projectile))
 
 (package-initialize)
@@ -79,7 +80,6 @@
 (require 'helm)
 (require 'helm-config)
 (require 'zencoding-mode)
-(require 'web-mode)
 (require 'magit)
 (require 'evil-magit)
 (require 'markdown-mode)
@@ -96,12 +96,13 @@
 (require 'flymake-ruby)
 (require 'scss-mode)
 (require 'remember)
-(require 'tern)
 (require 'editorconfig)
 (require 'ag)
 (require 'yasnippet)
 (require 'evil-org)
 (require 'typit)
+(require 'js2-mode)
+(require 'tern)
 
 (color-theme-initialize)
 (load "~/.emacs.d/evil-tmux-navigator/navigate.el")
@@ -109,9 +110,10 @@
 (load "~/.emacs.d/railscasts-theme/railscasts-theme.el")
 (osx-clipboard-mode 1)
 
-;;Highlight buffer when idle so I know what split I'm in.
-(toggle-hl-line-when-idle)
-(hl-line-when-idle-interval 5)
+(add-to-list 'load-path "~/.emacs.d/tern/emacs/")
+(autoload 'tern-mode "tern.el" nil t)
+
+(global-hl-line-mode 1)
 
 ;;Mode line changes to hide minor modes I don't care about.
 (diminish 'projectile-mode "")
@@ -182,7 +184,6 @@
   "c" 'comment-dwim
   "e" 'amir/eval-dwim
   "E" 'fsharp-eval-region
-  "v" 'web-mode
   "k" 'amir/load-life
   "j" 'avy-goto-line
   "w" 'avy-goto-word-0
@@ -287,10 +288,25 @@
      (amir/emacs-or-tmux "left" "tmux previous-window")
      (evil-normal-state)))
 
+
+(setq-default indent-tabs-mode nil)
+
+;; tab width 2
+(defun js2-jsx-mode-hook-settings ()
+  "Hooks for Web mode. Adjust indents"
+  (setq js-indent-level 2)
+  (setq tab-width 2)
+  (setq web-mode-indent-style 2)
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-css-indent-offset 2)
+  (setq web-mode-code-indent-offset 2))
+
+(add-hook 'js2-jsx-mode-hook 'js2-mode-hook-settings)
+
 ;; load this mode when this file is opened
 (autoload 'scss-mode "scss-mode")
-(add-to-list 'auto-mode-alist '("\\.js$" . javascript-mode))
-(add-to-list 'auto-mode-alist '("\\.jsx$" . javascript-mode))
+(add-to-list 'auto-mode-alist '("\\.js$" . js2-mode))
+(add-to-list 'auto-mode-alist '("\\.jsx$" . js2-jsx-mode))
 (add-to-list 'auto-mode-alist '("\\.scss\\'" . scss-mode))
 
 (add-hook 'after-init-hook #'global-flycheck-mode)
@@ -303,6 +319,8 @@
 ;; use eslint with web-mode for jsx files
 (flycheck-add-mode 'javascript-eslint 'web-mode)
 (flycheck-add-mode 'javascript-eslint 'javascript-mode)
+
+(setq-default flycheck-temp-prefix ".flycheck")
 
 ;; disable json-jsonlist checking for json files
 (setq-default flycheck-disabled-checkers
@@ -322,15 +340,6 @@
 (add-hook 'ruby-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
 (setq ruby-deep-indent-paren nil)
 
-;; tab width 2
-(defun my-web-mode-hook ()
-  "Hooks for Web mode. Adjust indents"
-  ;;; http://web-mode.org/
-  (setq web-mode-markup-indent-offset 2)
-  (setq web-mode-css-indent-offset 2)
-  (setq web-mode-code-indent-offset 2))
-
-(add-hook 'web-mode-hook  'my-web-mode-hook)
 
 ;;dont auto complete numbers or things with special characters in it
 (push (apply-partially
@@ -341,6 +350,12 @@
              (if (equal major-mode "org")
                  (>= (length c) 15)))))
       company-transformers)
+
+(defadvice web-mode-highlight-part (around tweak-jsx activate)
+  (if (equal web-mode-content-type "jsx")
+      (let ((web-mode-enable-part-face nil))
+        ad-do-it)
+    ad-do-it))
 
 (company-mode)
 (add-hook 'after-init-hook 'global-company-mode)
@@ -578,13 +593,14 @@
  '(avy-lead-face-2 ((t (:background "brightblack" :foreground "white"))))
  '(col-highlight ((t (:background "color-233"))))
  '(custom-variable-tag ((t (:foreground "cyan" :weight bold))))
- '(diff-added ((t (:inherit diff-changed :background "#ddffdd" :foreground "black"))))
- '(diff-header ((t (:background "grey80" :foreground "black"))))
- '(diff-removed ((t (:inherit diff-changed :background "#ffdddd" :foreground "black"))))
+ '(diff-added ((t (:inherit diff-changed :background "black" :foreground "#ddffdd"))))
+ '(diff-file-header ((t (:background "black" :weight bold))))
+ '(diff-header ((t (:background "black" :foreground "grey80"))))
+ '(diff-removed ((t (:inherit diff-changed :background "black" :foreground "#ffdddd"))))
  '(flymake-errline ((t (:background "color-52" :foreground "white"))))
  '(flymake-warnline ((t (:background "yellow" :foreground "white"))))
  '(fsharp-usage-face ((t (:foreground "color-39"))))
- '(hl-line ((t (:background "brightblack"))))
+ '(hl-line ((t (:background "color-235"))))
  '(jabber-activity-personal-face ((t (:foreground "red" :weight bold))))
  '(js2-external-variable ((t (:foreground "color-136"))))
  '(js2-function-param ((t (:foreground "color-81"))))
@@ -624,6 +640,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ack-use-environment t)
+ '(js2-basic-offset 2)
  '(jsx-indent-level 2)
  '(omnisharp-server-executable-path
    "/Users/amiralirajan/Projects/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
