@@ -52,6 +52,7 @@
    typit
    js2-mode
    tern
+   company-tern
    projectile))
 
 (package-initialize)
@@ -302,6 +303,8 @@
   (setq web-mode-code-indent-offset 2))
 
 (add-hook 'js2-jsx-mode-hook 'js2-mode-hook-settings)
+(add-hook 'js2-jsx-mode-hook (lambda () (tern-mode t)))
+(add-hook 'js2-mode-hook (lambda () (tern-mode t)))
 
 ;; load this mode when this file is opened
 (autoload 'scss-mode "scss-mode")
@@ -326,6 +329,8 @@
 (setq-default flycheck-disabled-checkers
   (append flycheck-disabled-checkers
     '(json-jsonlist)))
+
+
 
 ;; https://github.com/purcell/exec-path-from-shell
 ;; only need exec-path-from-shell on OSX
@@ -368,6 +373,9 @@
 (setq company-dabbrev-downcase 'nil)
 (eval-after-load 'company
     '(add-to-list 'company-backends 'company-omnisharp))
+
+(eval-after-load 'company
+'(add-to-list 'company-backends 'company-tern))
 
 
 (defun amir/company-complete-equal-sign ()
@@ -502,12 +510,6 @@
     (shell-command (concat "touch " (shell-quote-argument buffer-file-name)))
     (clear-visited-file-modtime)))
 
-(defun amir/tab-space-four ()
-  "Sets javascript and default tab space to four spaces."
-  (interactive)
-  (setq js-indent-level 2)
-  (setq tab-width 2))
-
 (defun amir/previous-search-to-top ()
   "Primarily for presentations, finds previous occurence of string and scrolls it to the top"
   (interactive)
@@ -597,6 +599,7 @@
  '(diff-file-header ((t (:background "black" :weight bold))))
  '(diff-header ((t (:background "black" :foreground "grey80"))))
  '(diff-removed ((t (:inherit diff-changed :background "black" :foreground "#ffdddd"))))
+ '(flycheck-warning ((t (:inherit warning :background "black" :underline t))))
  '(flymake-errline ((t (:background "color-52" :foreground "white"))))
  '(flymake-warnline ((t (:background "yellow" :foreground "white"))))
  '(fsharp-usage-face ((t (:foreground "color-39"))))
@@ -640,11 +643,12 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(ack-use-environment t)
+ '(avy-all-windows (quote all-frames))
  '(js2-basic-offset 2)
  '(jsx-indent-level 2)
  '(omnisharp-server-executable-path
    "/Users/amiralirajan/Projects/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
  '(org-agenda-files (list "~/.org/life.org"))
  '(ruby-deep-arglist nil)
- '(ruby-deep-indent-paren nil t)
+ '(ruby-deep-indent-paren nil)
  '(web-mode-code-indent-offset 2))
