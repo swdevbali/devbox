@@ -53,6 +53,7 @@
    js2-mode
    tern
    company-tern
+   inf-clojure
    projectile))
 
 (package-initialize)
@@ -220,7 +221,20 @@
 
 ;; Cider
 (add-hook 'cider-repl-mode-hook #'company-mode)
-(add-hook 'cider-mode-hook #'company-mode)
+
+(add-hook
+ 'clojurescript-mode-hook
+ (lambda ()
+   (progn
+     (show-paren-mode)
+     (paredit-mode)
+     (modify-syntax-entry ?- "w"))))
+
+(defun figwheel-repl ()
+  (interactive)
+  (run-clojure "lein figwheel"))
+
+(add-hook 'clojure-mode-hook #'inf-clojure-minor-mode)
 
 ;; avy
 (setq avy-styles-alist '((avy-goto-word-0 . at-full) (avy-goto-line . at-full)))
@@ -562,7 +576,11 @@
   (interactive)
   (pcase major-mode
     (`clojure-mode (cider-eval-defun-at-point))
-    (`clojurescript-mode (cider-eval-defun-at-point))
+    (`clojurescript-mode
+     (progn
+       (evil-append 0)
+       (inf-clojure-eval-last-sexp)
+       (evil-normal-state)))
     (`fsharp-mode
      (progn
        (fsharp-eval-phrase)
@@ -598,6 +616,8 @@
  '(diff-added ((t (:inherit diff-changed :background "black" :foreground "#ddffdd"))))
  '(diff-file-header ((t (:background "black" :weight bold))))
  '(diff-header ((t (:background "black" :foreground "grey80"))))
+ '(diff-refine-added ((t (:background "color-22" :foreground "white"))))
+ '(diff-refine-removed ((t (:inherit nil :background "#ffbbbb" :foreground "black"))))
  '(diff-removed ((t (:inherit diff-changed :background "black" :foreground "#ffdddd"))))
  '(flycheck-warning ((t (:inherit warning :background "black" :underline t))))
  '(flymake-errline ((t (:background "color-52" :foreground "white"))))
@@ -616,6 +636,7 @@
  '(magit-diff-removed ((t (:background "brightblack" :foreground "#aa2222"))))
  '(magit-diff-removed-highlight ((t (:background "black" :foreground "#aa2222"))))
  '(magit-section-highlight ((t (:background "black"))))
+ '(minibuffer-prompt ((t (:foreground "color-143" :weight bold))))
  '(mode-line ((t (:background "color-130" :foreground "white" :box nil))))
  '(mode-line-buffer-id ((t (:background "brightred" :foreground "white"))))
  '(neo-dir-link-face ((t (:foreground "cyan"))))
@@ -630,9 +651,11 @@
  '(org-todo ((t (:foreground "color-196" :weight bold))))
  '(secondary-selection ((t (:background "color-236"))))
  '(shadow ((t (:foreground "cyan"))))
- '(smerge-markers ((t (:background "grey85" :foreground "black"))))
- '(smerge-mine ((t (:background "#ffdddd" :foreground "black"))))
- '(smerge-other ((t (:background "#ddffdd" :foreground "black"))))
+ '(show-paren-match ((t (:background "cyan"))))
+ '(show-paren-mismatch ((t (:background "color-90" :foreground "white"))))
+ '(smerge-markers ((t (:background "brightblack" :foreground "white"))))
+ '(smerge-mine ((t (:foreground "#ffdddd"))))
+ '(smerge-other ((t (:foreground "#ddffdd"))))
  '(smerge-refined-added ((t (:inherit smerge-refined-change :background "#aaffaa" :foreground "black"))))
  '(web-mode-html-tag-bracket-face ((t (:foreground "color-250"))))
  '(web-mode-html-tag-face ((t (:foreground "yellow")))))
@@ -646,9 +669,12 @@
  '(avy-all-windows (quote all-frames))
  '(js2-basic-offset 2)
  '(jsx-indent-level 2)
+ '(minibuffer-prompt-properties (quote (read-only t face minibuffer-prompt)))
  '(omnisharp-server-executable-path
    "/Users/amiralirajan/Projects/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
  '(org-agenda-files (list "~/.org/life.org"))
  '(ruby-deep-arglist nil)
- '(ruby-deep-indent-paren nil)
+ '(ruby-deep-indent-paren nil t)
+ '(show-paren-delay 0)
+ '(show-paren-mode t)
  '(web-mode-code-indent-offset 2))
