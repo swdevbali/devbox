@@ -19,6 +19,7 @@
    evil
    evil-leader
    evil-matchit
+   evil-surround
    color-theme
    ido-vertical-mode
    flx-ido
@@ -53,7 +54,6 @@
    js2-mode
    tern
    company-tern
-   inf-clojure
    projectile))
 
 (package-initialize)
@@ -72,6 +72,7 @@
 (require 'evil)
 (require 'evil-leader)
 (require 'evil-matchit)
+(require 'evil-surround)
 (require 'color-theme)
 (require 'ido)
 (require 'ido-vertical-mode)
@@ -105,6 +106,7 @@
 (require 'typit)
 (require 'js2-mode)
 (require 'tern)
+(require 'cider)
 
 (color-theme-initialize)
 (load "~/.emacs.d/evil-tmux-navigator/navigate.el")
@@ -148,22 +150,16 @@
 ;;Evil
 (evil-mode 1)
 (global-evil-matchit-mode 1)
+(global-evil-surround-mode 1)
 
 ;;This is so I can spam the [ESC] key and eventually exit whatever state Emacs has put me in
 (define-key evil-normal-state-map [escape] 'keyboard-quit)
 (define-key evil-visual-state-map [escape] 'keyboard-quit)
-;;(define-key evil-insert-state-map (kbd "C-n") 'keyboard-quit)
 (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-ns-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
-
-(defun amir/auto-complete-or-default ()
-  (interactive)
-  (company-complete-selection)
-  (company-complete)
-  (self-insert-command 1))
 
 (defun evil-send-string-to-terminal (string)
   (unless (display-graphic-p) (send-string-to-terminal string)))
@@ -186,14 +182,13 @@
   "c" 'comment-dwim
   "e" 'amir/eval-dwim
   "E" 'fsharp-eval-region
-  "k" 'amir/load-life
   "j" 'avy-goto-line
   "w" 'avy-goto-word-0
   "m" 'amir/split-and-find
   "M" 'amir/hsplit-and-find
   "g" 'projectile-find-file
+  "r" 'amir/cider-send-to-repl
   "t" 'amir/touch
-  "a" 'amir/foo-inline
   "f" 'next-error
   "d" 'previous-error
   "b" 'ido-switch-buffer
@@ -202,25 +197,23 @@
   "h" 'vc-print-log
   ")" 'next-buffer
   "(" 'previous-buffer
-  "p" 'amir/previous-search-to-top
-  "o" 'flycheck-list-errors
   "`" 'amir/resize-window-dwim
   "TAB" 'amir/resize-equal
-  "q" 'amir/insert-file-name
   "2" 'amir/resize-window-vertical+
   "3" 'amir/resize-window-vertical-
   "1" 'amir/resize-window-horizontal-
   "4" 'amir/resize-window-horizontal+
   "x" 'amir/write-quit
-  "l" 'amir/paredit-wrap-around
-  "L" 'amir/paredit-splice-sexp-killing-backward
-  "\'" 'amir/paredit-doublequote
-  "z" 'amir/zoom-buffer
-  "i" 'install-packages)
+  "z" 'amir/zoom-buffer)
 
 
 ;; Cider
 (add-hook 'cider-repl-mode-hook #'company-mode)
+
+(setq cider-cljs-lein-repl
+      "(do (require 'figwheel-sidecar.repl-api)
+           (figwheel-sidecar.repl-api/start-figwheel!)
+           (figwheel-sidecar.repl-api/cljs-repl))")
 
 (add-hook
  'clojurescript-mode-hook
@@ -229,12 +222,6 @@
      (show-paren-mode)
      (paredit-mode)
      (modify-syntax-entry ?- "w"))))
-
-(defun figwheel-repl ()
-  (interactive)
-  (run-clojure "lein figwheel"))
-
-(add-hook 'clojure-mode-hook #'inf-clojure-minor-mode)
 
 ;; avy
 (setq avy-styles-alist '((avy-goto-word-0 . at-full) (avy-goto-line . at-full)))
@@ -268,10 +255,6 @@
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 (add-hook 'prog-mode-hook 'amir/turn-on-show-trailing-whitespace)
 
-;; Misc
-(setq-default indent-tabs-mode nil tab-width 2)
-(setq css-indent-offset 2)
-
 ;; Tmux splits
 (defun amir/emacs-or-tmux (dir tmux-cmd)
   (interactive)
@@ -303,10 +286,12 @@
      (amir/emacs-or-tmux "left" "tmux previous-window")
      (evil-normal-state)))
 
-
 (setq-default indent-tabs-mode nil)
 
 ;; tab width 2
+(setq-default indent-tabs-mode nil tab-width 2)
+(setq css-indent-offset 2)
+
 (defun js2-jsx-mode-hook-settings ()
   "Hooks for Web mode. Adjust indents"
   (setq js-indent-level 2)
@@ -344,8 +329,6 @@
   (append flycheck-disabled-checkers
     '(json-jsonlist)))
 
-
-
 ;; https://github.com/purcell/exec-path-from-shell
 ;; only need exec-path-from-shell on OSX
 ;; this hopefully sets up path and other vars better
@@ -358,7 +341,6 @@
 (add-hook 'ruby-mode-hook 'flymake-ruby-load)
 (add-hook 'ruby-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
 (setq ruby-deep-indent-paren nil)
-
 
 ;;dont auto complete numbers or things with special characters in it
 (push (apply-partially
@@ -380,7 +362,6 @@
 (add-hook 'after-init-hook 'global-company-mode)
 (setq company-idle-delay 0.03)
 (setq company-minimum-prefix-length 2)
-;;(setq company-require-match 'nil)
 (setq company-show-numbers 't)
 (setq omnisharp-company-match-type 'company-match-flx)
 (setq gc-cons-threshold 20000000)
@@ -390,7 +371,6 @@
 
 (eval-after-load 'company
 '(add-to-list 'company-backends 'company-tern))
-
 
 (defun amir/company-complete-equal-sign ()
   (interactive)
@@ -493,30 +473,6 @@
   (interactive)
   (evil-window-set-width (- (window-width) 10)))
 
-(defun amir/foo-inline (cmd)
-  (interactive)
-  (shell-command-on-region (point) (mark) cmd nil t))
-
-(defun amir/foo-above (cmd)
-  (interactive)
-  (let* ((buffer (generate-new-buffer "*shell-command*"))
-         (output (progn
-                   (shell-command-on-region (point) (mark) cmd buffer)
-                   (with-current-buffer buffer
-                     (buffer-string)))))
-    (save-excursion
-      (goto-char (min (point) (mark)))
-      (insert output))))
-
-(defun amir/foo-kill-ring(cmd)
-  (interactive)
-  (kill-new
-   (let ((buffer (generate-new-buffer "*shell-command*")))
-     (shell-command-on-region (point) (mark) cmd buffer)
-     (with-current-buffer buffer
-       (buffer-string))))
-  (message "Output copied to kill ring"))
-
 (defun amir/touch ()
   "Run touch command on current file."
   (interactive)
@@ -524,23 +480,10 @@
     (shell-command (concat "touch " (shell-quote-argument buffer-file-name)))
     (clear-visited-file-modtime)))
 
-(defun amir/previous-search-to-top ()
-  "Primarily for presentations, finds previous occurence of string and scrolls it to the top"
-  (interactive)
-  (progn
-    (evil-previous-search 1)
-    (evil-scroll-line-to-top)))
-
 (defun amir/paredit-wrap-around ()
   "Puts parenthesis around current s-exp. Used in clojure and elisp."
   (interactive)
   (paredit-wrap-round)
-  (evil-insert 1))
-
-(defun amir/paredit-doublequote ()
-  "Puts double quotes around current s-exp. Used in clojure and elisp."
-  (interactive)
-  (paredit-doublequote 1)
   (evil-insert 1))
 
 (defun amir/paredit-splice-sexp-killing-backward ()
@@ -548,11 +491,6 @@
   (interactive)
   (paredit-splice-sexp-killing-backward)
   (evil-insert 1))
-
-(defun amir/load-life ()
-  "Fast way to bring up my init.el file."
-  (interactive)
-  (evil-window-vnew nil "~/.org/life.org"))
 
 (defun amir/reload-init-el ()
   "Fast way to reload my init.el file."
@@ -571,22 +509,29 @@
   (evil-window-split)
   (projectile-find-file))
 
+(defun amir/cider-send-to-repl ()
+  (interactive)
+  (progn
+    (evil-append 0)
+    (let ((s (buffer-substring-no-properties
+             (nth 0 (cider-last-sexp 'bounds))
+             (nth 1 (cider-last-sexp 'bounds)))))
+     (with-current-buffer (cider-current-connection)
+       (insert s)
+       (cider-repl-return)))
+    (evil-normal-state)))
+
 (defun amir/eval-dwim ()
   "Send the current selected \"stuff\" to the repl."
   (interactive)
   (pcase major-mode
     (`clojure-mode (cider-eval-defun-at-point))
-    (`clojurescript-mode
-     (progn
-       (evil-append 0)
-       (inf-clojure-eval-last-sexp)
-       (evil-normal-state)))
+    (`clojurescript-mode (cider-eval-defun-at-point))
     (`fsharp-mode
      (progn
        (fsharp-eval-phrase)
        (evil-next-line 1)))
     (_ (eval-last-sexp nil))))
-
 
 (defun amir/eval-file-dwim ()
   "Send the current selected \"stuff\" to the repl."
@@ -611,6 +556,8 @@
  '(avy-lead-face-0 ((t (:background "cyan" :foreground "black"))))
  '(avy-lead-face-1 ((t (:background "cyan" :foreground "black"))))
  '(avy-lead-face-2 ((t (:background "brightblack" :foreground "white"))))
+ '(cider-debug-code-overlay-face ((t (:background "brightblack"))))
+ '(cider-result-overlay-face ((t (:background "brightblack" :box (:line-width -1 :color "yellow")))))
  '(col-highlight ((t (:background "color-233"))))
  '(custom-variable-tag ((t (:foreground "cyan" :weight bold))))
  '(diff-added ((t (:inherit diff-changed :background "black" :foreground "#ddffdd"))))
@@ -667,6 +614,10 @@
  ;; If there is more than one, they won't work right.
  '(ack-use-environment t)
  '(avy-all-windows (quote all-frames))
+ '(cider-cljs-lein-repl
+   "(do (require 'figwheel-sidecar.repl-api)
+           (figwheel-sidecar.repl-api/start-figwheel!)
+           (figwheel-sidecar.repl-api/cljs-repl))")
  '(js2-basic-offset 2)
  '(jsx-indent-level 2)
  '(minibuffer-prompt-properties (quote (read-only t face minibuffer-prompt)))
@@ -675,6 +626,9 @@
  '(org-agenda-files (list "~/.org/life.org"))
  '(ruby-deep-arglist nil)
  '(ruby-deep-indent-paren nil t)
+ '(safe-local-variable-values
+   (quote
+    ((cider-cljs-lein-repl . "(do (use 'figwheel-sidecar.repl-api) (start-figwheel!) (cljs-repl))"))))
  '(show-paren-delay 0)
  '(show-paren-mode t)
  '(web-mode-code-indent-offset 2))
