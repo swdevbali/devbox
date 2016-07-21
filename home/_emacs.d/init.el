@@ -569,6 +569,7 @@
  '(flycheck-warning ((t (:inherit warning :background "black" :underline t))))
  '(flymake-errline ((t (:background "color-52" :foreground "white"))))
  '(flymake-warnline ((t (:background "yellow" :foreground "white"))))
+ '(font-lock-keyword-face ((t (:foreground "color-216"))))
  '(fsharp-usage-face ((t (:foreground "color-39"))))
  '(hl-line ((t (:background "color-235"))))
  '(jabber-activity-personal-face ((t (:foreground "red" :weight bold))))
@@ -605,7 +606,12 @@
  '(smerge-other ((t (:foreground "#ddffdd"))))
  '(smerge-refined-added ((t (:inherit smerge-refined-change :background "#aaffaa" :foreground "black"))))
  '(web-mode-html-tag-bracket-face ((t (:foreground "color-250"))))
- '(web-mode-html-tag-face ((t (:foreground "yellow")))))
+ '(web-mode-html-tag-face ((t (:foreground "yellow"))))
+ '(whitespace-hspace ((t (:foreground "beige"))))
+ '(whitespace-newline ((t (:foreground "white" :weight normal))))
+ '(whitespace-space ((t (:foreground "beige"))))
+ '(whitespace-space-after-tab ((t (:background "red" :foreground "white"))))
+ '(whitespace-tab ((t (:foreground "beige")))))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -625,7 +631,7 @@
    "/Users/amiralirajan/Projects/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
  '(org-agenda-files (list "~/.org/life.org"))
  '(ruby-deep-arglist nil)
- '(ruby-deep-indent-paren nil t)
+ '(ruby-deep-indent-paren nil)
  '(safe-local-variable-values
    (quote
     ((cider-cljs-lein-repl . "(do (use 'figwheel-sidecar.repl-api) (start-figwheel!) (cljs-repl))"))))
