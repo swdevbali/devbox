@@ -1,4 +1,3 @@
-source $(brew --prefix nvm)/nvm.sh
 source $HOME/todo.sh
 eval "$(rbenv init -)"
 export TERM="xterm-256color"
@@ -16,8 +15,10 @@ export PATH="$JAVA_HOME/bin:$PATH"
 export PATH="$CLOJURESCRIPT_HOME/bin:$PATH"
 export RUBYMOTION_ANDROID_SDK="/Users/amiralirajan/.rubymotion-android/sdk"
 export RUBYMOTION_ANDROID_NDK="/Users/amiralirajan/.rubymotion-android/ndk"
-export RBENV_VERSION=2.1.1
 export CHROME_LOG_FILE="chrome_debug.log"
+export ALTERNATE_EDITOR=emacs
+export EDITOR=emacsclient
+export VISUAL=emacsclient
 
 alias wat=alias
 
@@ -30,7 +31,7 @@ alias pj="cd ~/projects"
 alias b="cd .."
 alias lock="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
 alias sleepc="osascript -e 'tell application \"Finder\" to sleep'"
-alias vim="emacs"
+alias vim="emacsclient -t"
 alias v="emacs"
 alias notes="cd ~/Notes"
 alias f="find . -name "
@@ -64,12 +65,22 @@ alias pom='countdown "00:25:00"'
 alias watchhelp="echo fswatch spec/main_spec.rb \| xargs -n1 -I{} rake spec:device"
 alias attach="tmux -f ._tmux.conf attach"
 alias tm="tmux"
-alias rd="rake device"
+alias rd="bundle exec rake device"
+alias r6="bundle exec rake sim:six"
+alias re="bundle exec rake emulator"
 alias ackf=ackffun
 alias flushdns="sudo killall -HUP mDNSResponder"
 alias kc=killselenium
 alias gcl="git checkout -"
 alias tfl="cat ~/.tableflips"
+alias life="emacs ~/.org/life.org"
+alias adb="~/.rubymotion-android/sdk/platform-tools/adb -e logcat"
+alias rmlol="rm -rf /Applications/League\ of\ Legends.app/"
+alias r=reset
+alias c=clear
+alias weather="curl wttr.in"
+alias lien=lein
+
 
 tf()
 (
