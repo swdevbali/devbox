@@ -509,6 +509,11 @@
   (evil-window-split)
   (projectile-find-file))
 
+(defun amir/cljs-buffer ()
+  (first
+   (-filter (lambda (x) (string-match ".*CLJS.*" (buffer-name x)))
+            (cider-connections))))
+
 (defun amir/cider-send-to-repl ()
   (interactive)
   (progn
@@ -516,7 +521,7 @@
     (let ((s (buffer-substring-no-properties
              (nth 0 (cider-last-sexp 'bounds))
              (nth 1 (cider-last-sexp 'bounds)))))
-     (with-current-buffer (cider-current-connection)
+     (with-current-buffer (amir/cljs-buffer)
        (insert s)
        (cider-repl-return)))
     (evil-normal-state)))
