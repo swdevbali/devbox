@@ -13,7 +13,6 @@
    ag
    cider
    auto-complete
-   scala-mode2
    sbt-mode
    exec-path-from-shell
    evil
