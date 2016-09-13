@@ -39,6 +39,7 @@
    omnisharp
    avy
    markdown-mode
+   mmm-mode
    flycheck
    json-mode
    diminish
@@ -54,6 +55,7 @@
    js2-mode
    tern
    company-tern
+   csharp-mode
    projectile))
 
 (package-initialize)
@@ -107,6 +109,8 @@
 (require 'js2-mode)
 (require 'tern)
 (require 'cider)
+(require 'csharp-mode)
+(require 'mmm-mode)
 
 (color-theme-initialize)
 (load "~/.emacs.d/evil-tmux-navigator/navigate.el")
@@ -372,6 +376,23 @@
 (eval-after-load 'company
 '(add-to-list 'company-backends 'company-tern))
 
+(setq mmm-global-mode 1)
+
+(defun my-mmm-markdown-auto-class (lang &optional submode)
+  "Define a mmm-mode class for LANG in `markdown-mode' using SUBMODE.
+If SUBMODE is not provided, use `LANG-mode' by default."
+  (let ((class (intern (concat "markdown-" lang)))
+        (submode (or submode (intern (concat lang "-mode"))))
+        (front (concat "^```" lang "[\n\r]+"))
+        (back "^```"))
+    (mmm-add-classes (list (list class :submode submode :front front :back back)))
+    (mmm-add-mode-ext-class 'markdown-mode nil class)))
+
+;; Mode names that derive directly from the language name
+(mapc 'my-mmm-markdown-auto-class
+      '("awk" "bibtex" "c" "cpp" "css" "html" "latex" "lisp" "makefile"
+        "markdown" "python" "r" "ruby" "sql" "stata" "xml" "csharp"))
+
 (defun amir/company-complete-equal-sign ()
   (interactive)
   (progn
@@ -590,6 +611,7 @@
  '(magit-diff-removed-highlight ((t (:background "black" :foreground "#aa2222"))))
  '(magit-section-highlight ((t (:background "black"))))
  '(minibuffer-prompt ((t (:foreground "color-143" :weight bold))))
+ '(mmm-default-submode-face ((t nil)))
  '(mode-line ((t (:background "color-130" :foreground "white" :box nil))))
  '(mode-line-buffer-id ((t (:background "brightred" :foreground "white"))))
  '(neo-dir-link-face ((t (:foreground "cyan"))))
