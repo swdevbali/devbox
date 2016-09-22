@@ -35,7 +35,6 @@
    evil-org
    fsharp-mode
    2048-game
-;   omnisharp
    avy
    markdown-mode
    mmm-mode
@@ -95,7 +94,6 @@
 (require 'diminish)
 (require 'hl-line)
 (require 'hl-line+)
-;(require 'omnisharp)
 (require 'company)
 (require 'flymake-ruby)
 (require 'scss-mode)
@@ -366,11 +364,8 @@
 (setq company-idle-delay 0.03)
 (setq company-minimum-prefix-length 2)
 (setq company-show-numbers 't)
-;(setq omnisharp-company-match-type 'company-match-flx)
 (setq gc-cons-threshold 20000000)
 (setq company-dabbrev-downcase 'nil)
-;(eval-after-load 'company
-;    '(add-to-list 'company-backends 'company-omnisharp))
 
 (eval-after-load 'company
 '(add-to-list 'company-backends 'company-tern))
@@ -446,6 +441,7 @@ If SUBMODE is not provided, use `LANG-mode' by default."
 
 ;; magit stuff
 (setq magit-last-seen-setup-instructions "1.4.0")
+(setq tags-add-tables nil)
 
 (add-hook 'magit-setup-hook 'vim-like-magit-keys)
 
@@ -653,8 +649,6 @@ If SUBMODE is not provided, use `LANG-mode' by default."
  '(js2-basic-offset 2)
  '(jsx-indent-level 2)
  '(minibuffer-prompt-properties (quote (read-only t face minibuffer-prompt)))
-; '(omnisharp-server-executable-path
-;   "/Users/amiralirajan/Projects/omnisharp-server/OmniSharp/bin/Debug/OmniSharp.exe")
  '(org-agenda-files (list "~/.org/life.org"))
  '(ruby-deep-arglist nil)
  '(ruby-deep-indent-paren nil)
