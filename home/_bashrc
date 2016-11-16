@@ -12,6 +12,7 @@ export DRIP_SHUTDOWN=30
 export SBT_OPTS="-XX:+UseConcMarkSweepGC -XX:+CMSClassUnloadingEnabled -XX:PermSize=128M -XX:MaxPermSize=512M"
 export PATH="$JAVA_HOME/bin:$PATH"
 export PATH="$CLOJURESCRIPT_HOME/bin:$PATH"
+export PATH="~/bin:$PATH"
 export RUBYMOTION_ANDROID_SDK="/Users/amiralirajan/.rubymotion-android/sdk"
 export RUBYMOTION_ANDROID_NDK="/Users/amiralirajan/.rubymotion-android/ndk"
 export CHROME_LOG_FILE="chrome_debug.log"
@@ -26,11 +27,10 @@ alias wifion="networksetup -setairportpower en0 on"
 alias wifireboot="wifioff && wifion"
 
 alias e="exit"
-alias pj="cd ~/projects"
+alias p="cd ~/projects"
 alias b="cd .."
 alias lock="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
 alias sleepc="osascript -e 'tell application \"Finder\" to sleep'"
-alias vim="emacs"
 alias v="emacs"
 alias notes="cd ~/Notes"
 alias f="find . -name "
@@ -63,7 +63,7 @@ alias jj='eval $(thefuck $(fc -ln -1)); history -r'
 alias pom='countdown "00:25:00"'
 alias watchhelp="echo fswatch spec/main_spec.rb \| xargs -n1 -I{} rake spec:device"
 alias attach="tmux -f ._tmux.conf attach"
-alias tm="tmux"
+alias t="tmux"
 alias rd="bundle exec rake device"
 alias r6="bundle exec rake sim:six"
 alias re="bundle exec rake emulator"
@@ -72,14 +72,14 @@ alias flushdns="sudo killall -HUP mDNSResponder"
 alias kc=killselenium
 alias gcl="git checkout -"
 alias tfl="cat ~/.tableflips"
-alias life="emacs ~/.org/life.org"
+alias l="emacs ~/.org/life.org"
 alias adb="~/.rubymotion-android/sdk/platform-tools/adb -e logcat"
 alias rmlol="rm -rf /Applications/League\ of\ Legends.app/"
 alias r=reset
 alias c=clear
 alias weather="curl wttr.in"
 alias lien=lein
-
+alias pg="pg_ctl -D /usr/local/var/postgres -l /usr/local/var/postgres/server.log start"
 
 tf()
 (
