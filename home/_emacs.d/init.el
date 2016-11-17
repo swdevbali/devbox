@@ -155,7 +155,6 @@
 
 ;;This is so I can spam the [ESC] key and eventually exit whatever state Emacs has put me in
 ;;; esc quits
-;;;IF THERE IS A WEIRD DELAY GOING INTO NORMAL MODE, SET THIS VARIABLE TO 0: evil-esc-delay
 (defun minibuffer-keyboard-quit ()
   "Abort recursive edit.
 In Delete Selection mode, if the mark is active, just deactivate it;
@@ -658,7 +657,8 @@ If SUBMODE is not provided, use `LANG-mode' by default."
    "(do (require 'figwheel-sidecar.repl-api)
            (figwheel-sidecar.repl-api/start-figwheel!)
            (figwheel-sidecar.repl-api/cljs-repl))")
- '(js2-basic-offset 2)
+ '(evil-esc-delay 0)
+ '(js-indent-level 2)
  '(jsx-indent-level 2)
  '(minibuffer-prompt-properties (quote (read-only t face minibuffer-prompt)))
  '(org-agenda-files (list "~/.org/life.org"))

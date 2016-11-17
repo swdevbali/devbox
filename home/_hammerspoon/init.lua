@@ -1,34 +1,24 @@
-ctrl_table = {
-    sends_escape = true,
-    last_mods = {}
-}
-
-control_key_timer = hs.timer.delayed.new(0.15, function()
-    ctrl_table["send_escape"] = false
-    -- log.i("timer fired")
-    -- control_key_timer:stop()
-end
-)
-
+send_escape = false
 last_mods = {}
+
+control_key_handler = function()
+  send_escape = false
+end
+
+control_key_timer = hs.timer.delayed.new(0.15, control_key_handler)
 
 control_handler = function(evt)
   local new_mods = evt:getFlags()
   if last_mods["ctrl"] == new_mods["ctrl"] then
-      return false
+    return false
   end
   if not last_mods["ctrl"] then
-    -- log.i("control pressed")
     last_mods = new_mods
-    ctrl_table["send_escape"] = true
-    -- log.i("starting timer")
+    send_escape = true
     control_key_timer:start()
   else
-    -- log.i("contrtol released")
-    -- log.i(ctrl_table["send_escape"])
-    if ctrl_table["send_escape"] then
-      -- log.i("send escape key...")
-      hs.eventtap.keyStroke({}, "ESCAPE")
+    if send_escape then
+      hs.eventtap.keyStroke({"ctrl"}, "[")
     end
     last_mods = new_mods
     control_key_timer:stop()
@@ -36,8 +26,13 @@ control_handler = function(evt)
   return false
 end
 
-control_tap = hs.eventtap.new({12}, control_handler)
-
+control_tap = hs.eventtap.new({hs.eventtap.event.types.flagsChanged}, control_handler)
 control_tap:start()
 
- 
+other_handler = function(evt)
+  send_escape = false
+  return false
+end
+
+other_tap = hs.eventtap.new({hs.eventtap.event.types.keyDown}, other_handler)
+other_tap:start()
