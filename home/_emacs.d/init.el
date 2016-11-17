@@ -154,6 +154,17 @@
 (global-evil-surround-mode 1)
 
 ;;This is so I can spam the [ESC] key and eventually exit whatever state Emacs has put me in
+;;; esc quits
+;;;IF THERE IS A WEIRD DELAY GOING INTO NORMAL MODE, SET THIS VARIABLE TO 0: evil-esc-delay
+(defun minibuffer-keyboard-quit ()
+  "Abort recursive edit.
+In Delete Selection mode, if the mark is active, just deactivate it;
+then it takes a second \\[keyboard-quit] to abort the minibuffer."
+  (interactive)
+  (if (and delete-selection-mode transient-mark-mode mark-active)
+      (setq deactivate-mark  t)
+    (when (get-buffer "*Completions*") (delete-windows-on "*Completions*"))
+    (abort-recursive-edit)))
 (define-key evil-normal-state-map [escape] 'keyboard-quit)
 (define-key evil-visual-state-map [escape] 'keyboard-quit)
 (define-key minibuffer-local-map [escape] 'minibuffer-keyboard-quit)
@@ -161,6 +172,7 @@
 (define-key minibuffer-local-completion-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-must-match-map [escape] 'minibuffer-keyboard-quit)
 (define-key minibuffer-local-isearch-map [escape] 'minibuffer-keyboard-quit)
+(global-set-key [escape] 'evil-exit-emacs-state)
 
 (defun evil-send-string-to-terminal (string)
   (unless (display-graphic-p) (send-string-to-terminal string)))
