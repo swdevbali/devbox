@@ -205,6 +205,8 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
   "d" 'previous-error
   "b" 'ido-switch-buffer
   "." 'ido-dired
+  "," 'amir/split-and-dired
+  "<" 'amir/hsplit-and-dired
   "s" 'magit-status
   "h" 'vc-print-log
   ")" 'next-buffer
@@ -353,6 +355,13 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
 (add-hook 'ruby-mode-hook 'flymake-ruby-load)
 (add-hook 'ruby-mode-hook #'(lambda () (modify-syntax-entry ?_ "w")))
 (setq ruby-deep-indent-paren nil)
+
+;;disable company-mode hook for org-mode
+(add-hook 'org-mode-hook (lambda () (company-mode 0)))
+
+;;disable company-mode hook for markdown
+(add-hook 'markdown-mode-hook (lambda () (company-mode 0)))
+(add-hook 'markdown-mode-hook (lambda () (auto-fill-mode 1)))
 
 ;;dont auto complete numbers or things with special characters in it
 (push (apply-partially
@@ -525,7 +534,7 @@ If SUBMODE is not provided, use `LANG-mode' by default."
   (load "~/.emacs.d/init.el"))
 
 (defun amir/split-and-find ()
-  "Opens a new split window and brings up projectile so I can search for a file."
+  "Opens a new split window and brings up dired so I can ."
   (interactive)
   (evil-window-vsplit)
   (projectile-find-file))
@@ -535,6 +544,18 @@ If SUBMODE is not provided, use `LANG-mode' by default."
   (interactive)
   (evil-window-split)
   (projectile-find-file))
+
+(defun amir/split-and-dired ()
+  "Opens a new split window and brings up dired so I can navigate a directory."
+  (interactive)
+  (evil-window-vsplit)
+  (ido-dired))
+
+(defun amir/hsplit-and-dired ()
+  "Opens a new split window and brings up dired so I can navigate a directory."
+  (interactive)
+  (evil-window-split)
+  (ido-dired))
 
 (defun amir/cljs-buffer ()
   (first
