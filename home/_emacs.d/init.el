@@ -54,6 +54,9 @@
    tern
    company-tern
    csharp-mode
+   ivy
+   counsel
+   helm-ag
    projectile))
 
 (package-initialize)
@@ -108,6 +111,10 @@
 (require 'cider)
 (require 'csharp-mode)
 (require 'mmm-mode)
+(require 'ivy)
+(require 'counsel)
+(require 'helm-ag)
+(require 'helm-projectile)
 
 (color-theme-initialize)
 (load "~/.emacs.d/evil-tmux-navigator/navigate.el")
@@ -135,6 +142,18 @@
 
 ;;Temp files
 (defconst emacs-tmp-dir (format "%s/%s%s/" temporary-file-directory "emacs" (user-uid)))
+
+;;ivy
+(ivy-mode 1)
+(setq ivy-use-virtual-buffers t)
+(setq ivy-count-format "(%d/%d) ")
+
+;;(add-hook 'ivy-setup-hook 'vim-like-ivy-keys)
+;;
+;;(defun vim-like-ivy-keys ()
+;;  "Add vim like keybindings for ido."
+;;  (define-key ivy-minibuffer-map (kbd "C-j") 'ivy-next-line)
+;;  (define-key ivy-minibuffer-map (kbd "C-k") 'ivy-previous-line))
 
 ;;snippets
 (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
@@ -191,6 +210,7 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
 (evil-leader/set-leader "<SPC>")
 
 (evil-leader/set-key
+  "v" 'amir/counsel-ag
   "c" 'comment-dwim
   "e" 'amir/eval-dwim
   "E" 'fsharp-eval-region
@@ -407,6 +427,11 @@ If SUBMODE is not provided, use `LANG-mode' by default."
       '("awk" "bibtex" "c" "cpp" "css" "html" "latex" "lisp" "makefile"
         "markdown" "python" "r" "ruby" "sql" "stata" "xml" "csharp"))
 
+(defun amir/counsel-ag ()
+  (interactive)
+  (counsel-ag nil (vc-root-dir) nil nil))
+
+
 (defun amir/company-complete-equal-sign ()
   (interactive)
   (progn
@@ -614,6 +639,7 @@ If SUBMODE is not provided, use `LANG-mode' by default."
  '(col-highlight ((t (:background "color-233"))))
  '(custom-variable-tag ((t (:foreground "cyan" :weight bold))))
  '(diff-added ((t (:inherit diff-changed :background "black" :foreground "#ddffdd"))))
+ '(diff-context ((t (:foreground "color-248"))))
  '(diff-file-header ((t (:background "black" :weight bold))))
  '(diff-header ((t (:background "black" :foreground "grey80"))))
  '(diff-refine-added ((t (:background "color-22" :foreground "white"))))
@@ -625,6 +651,12 @@ If SUBMODE is not provided, use `LANG-mode' by default."
  '(font-lock-keyword-face ((t (:foreground "color-216"))))
  '(fsharp-usage-face ((t (:foreground "color-39"))))
  '(hl-line ((t (:background "color-235"))))
+ '(ivy-current-match ((t (:background "brightmagenta" :foreground "white"))))
+ '(ivy-minibuffer-match-face-1 ((t (:background "brightyellow"))))
+ '(ivy-minibuffer-match-face-2 ((t (:background "brightblack" :weight bold))))
+ '(ivy-minibuffer-match-face-3 ((t (:background "brightgreen" :weight bold))))
+ '(ivy-minibuffer-match-face-4 ((t (:background "brightmagenta" :weight bold))))
+ '(ivy-remote ((t (:foreground "cyan"))))
  '(jabber-activity-personal-face ((t (:foreground "red" :weight bold))))
  '(js2-external-variable ((t (:foreground "color-136"))))
  '(js2-function-param ((t (:foreground "color-81"))))
@@ -659,6 +691,24 @@ If SUBMODE is not provided, use `LANG-mode' by default."
  '(smerge-mine ((t (:foreground "#ffdddd"))))
  '(smerge-other ((t (:foreground "#ddffdd"))))
  '(smerge-refined-added ((t (:inherit smerge-refined-change :background "#aaffaa" :foreground "black"))))
+ '(vc-annotate-face-CCCCFF ((t (:background "color-16"))) t)
+ '(vc-annotate-face-CCD8FF ((t (:background "color-57" :foreground "white"))) t)
+ '(vc-annotate-face-CCE4FF ((t (:background "color-56" :foreground "white"))) t)
+ '(vc-annotate-face-CCF0FF ((t (:background "brightblack" :foreground "white"))) t)
+ '(vc-annotate-face-CCFCFF ((t (:background "color-72" :foreground "white"))) t)
+ '(vc-annotate-face-CCFFD2 ((t (:background "color-23" :foreground "white"))) t)
+ '(vc-annotate-face-CCFFDE ((t (:background "color-30" :foreground "white"))) t)
+ '(vc-annotate-face-CCFFEA ((t (:background "color-24" :foreground "white"))) t)
+ '(vc-annotate-face-CCFFF6 ((t (:background "color-31" :foreground "white"))) t)
+ '(vc-annotate-face-D2FFCC ((t (:background "color-24" :foreground "white"))) t)
+ '(vc-annotate-face-DEFFCC ((t (:background "color-25" :foreground "white"))) t)
+ '(vc-annotate-face-EAFFCC ((t (:background "color-24" :foreground "white"))) t)
+ '(vc-annotate-face-F6FFCC ((t (:background "color-89" :foreground "white"))) t)
+ '(vc-annotate-face-FFCCCC ((t (:background "color-88" :foreground "white"))) t)
+ '(vc-annotate-face-FFD8CC ((t (:background "color-90" :foreground "white"))) t)
+ '(vc-annotate-face-FFE4CC ((t (:background "color-91" :foreground "white"))) t)
+ '(vc-annotate-face-FFF0CC ((t (:background "color-94" :foreground "white"))) t)
+ '(vc-annotate-face-FFFCCC ((t (:background "color-99" :foreground "white"))) t)
  '(web-mode-html-tag-bracket-face ((t (:foreground "color-250"))))
  '(web-mode-html-tag-face ((t (:foreground "yellow"))))
  '(whitespace-hspace ((t (:foreground "beige"))))
@@ -679,10 +729,16 @@ If SUBMODE is not provided, use `LANG-mode' by default."
            (figwheel-sidecar.repl-api/start-figwheel!)
            (figwheel-sidecar.repl-api/cljs-repl))")
  '(evil-esc-delay 0)
+ '(ivy-count-format "(%d/%d) ")
+ '(ivy-mode t)
+ '(ivy-use-virtual-buffers t)
  '(js-indent-level 2)
  '(jsx-indent-level 2)
  '(minibuffer-prompt-properties (quote (read-only t face minibuffer-prompt)))
  '(org-agenda-files (list "~/.org/life.org"))
+ '(package-selected-packages
+   (quote
+    (counsel ivy zencoding-mode yasnippet web-mode typit scss-mode sbt-mode paredit osx-clipboard mmm-mode markdown-mode json-mode js2-mode ido-vertical-mode hl-line+ helm-projectile fsharp-mode flymake-ruby flx-ido expand-region exec-path-from-shell evil-surround evil-org evil-matchit evil-magit emmet-mode editorconfig diminish csharp-mode company-tern color-theme cider avy auto-complete ag 2048-game)))
  '(ruby-deep-arglist nil)
  '(ruby-deep-indent-paren nil)
  '(safe-local-variable-values
