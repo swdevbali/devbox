@@ -57,6 +57,10 @@
    ivy
    counsel
    helm-ag
+   swift-mode
+   company-sourcekit
+   rtags
+   irony
    projectile))
 
 (package-initialize)
@@ -115,6 +119,12 @@
 (require 'counsel)
 (require 'helm-ag)
 (require 'helm-projectile)
+(require 'swift-mode)
+(require 'company-sourcekit)
+(require 'rtags)
+(require 'irony)
+
+(add-to-list 'company-backends 'company-sourcekit)
 
 (color-theme-initialize)
 (load "~/.emacs.d/evil-tmux-navigator/navigate.el")
@@ -148,12 +158,14 @@
 (setq ivy-use-virtual-buffers t)
 (setq ivy-count-format "(%d/%d) ")
 
-;;(add-hook 'ivy-setup-hook 'vim-like-ivy-keys)
-;;
-;;(defun vim-like-ivy-keys ()
-;;  "Add vim like keybindings for ido."
-;;  (define-key ivy-minibuffer-map (kbd "C-j") 'ivy-next-line)
-;;  (define-key ivy-minibuffer-map (kbd "C-k") 'ivy-previous-line))
+(add-hook 'ivy-setup-hook 'vim-like-ivy-keys)
+
+(defun vim-like-ivy-keys ()
+  "Add vim like keybindings for ivy."
+  (define-key ido-completion-map (kbd "C-n") 'ivy-next-line)
+  (define-key ido-completion-map (kbd "C-j") 'ivy-next-line)
+  (define-key ido-completion-map (kbd "C-p") 'ivy-previous-line)
+  (define-key ido-completion-map (kbd "C-k") 'ivy-previous-line))
 
 ;;snippets
 (setq yas-snippet-dirs '("~/.emacs.d/snippets"))
@@ -271,7 +283,9 @@ then it takes a second \\[keyboard-quit] to abort the minibuffer."
 
 (defun vim-like-ido-keys ()
   "Add vim like keybindings for ido."
+  (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
   (define-key ido-completion-map (kbd "C-j") 'ido-next-match)
+  (define-key ido-completion-map (kbd "C-p") 'ido-prev-match)
   (define-key ido-completion-map (kbd "C-k") 'ido-prev-match))
 
 (ido-mode 1)
@@ -636,6 +650,7 @@ If SUBMODE is not provided, use `LANG-mode' by default."
  '(avy-lead-face-2 ((t (:background "brightblack" :foreground "white"))))
  '(cider-debug-code-overlay-face ((t (:background "brightblack"))))
  '(cider-result-overlay-face ((t (:background "brightblack" :box (:line-width -1 :color "yellow")))))
+ '(cider-test-failure-face ((t (:background "brightmagenta"))))
  '(col-highlight ((t (:background "color-233"))))
  '(custom-variable-tag ((t (:foreground "cyan" :weight bold))))
  '(diff-added ((t (:inherit diff-changed :background "black" :foreground "#ddffdd"))))
@@ -740,7 +755,7 @@ If SUBMODE is not provided, use `LANG-mode' by default."
    (quote
     (counsel ivy zencoding-mode yasnippet web-mode typit scss-mode sbt-mode paredit osx-clipboard mmm-mode markdown-mode json-mode js2-mode ido-vertical-mode hl-line+ helm-projectile fsharp-mode flymake-ruby flx-ido expand-region exec-path-from-shell evil-surround evil-org evil-matchit evil-magit emmet-mode editorconfig diminish csharp-mode company-tern color-theme cider avy auto-complete ag 2048-game)))
  '(ruby-deep-arglist nil)
- '(ruby-deep-indent-paren nil)
+ '(ruby-deep-indent-paren nil t)
  '(safe-local-variable-values
    (quote
     ((cider-cljs-lein-repl . "(do (use 'figwheel-sidecar.repl-api) (start-figwheel!) (cljs-repl))"))))
